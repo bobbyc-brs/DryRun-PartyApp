@@ -19,12 +19,12 @@ graph TB
     end
 
     subgraph "Blueprints"
-        GB[GuestBlueprint\nindex(), select_guest()\nadd_drink()]
-        HB[HostBlueprint\ndashboard(), bac_chart()\ngroup_bac_chart()]
+        GB[GuestBlueprint\nindex, select_guest()\nadd_drink]
+        HB[HostBlueprint\ndashboard, bac_chart()\ngroup_bac_chart]
     end
 
     subgraph "Framework"
-        F[Flask\ncreate_app()\nregister_blueprint()]
+        F[Flask\ncreate_app\nregister_blueprint]
         K[Constants\nBAC constants\nConversion factors]
     end
 
