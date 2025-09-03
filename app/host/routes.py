@@ -25,6 +25,15 @@ For inquiries, contact: Info@BrighterSight.ca
 
 from flask import Blueprint, render_template, jsonify
 from app.models import Guest, DrinkConsumption, Drink
+from app.constants import (
+    ETHANOL_DENSITY_G_PER_ML,
+    LBS_TO_KG_CONVERSION,
+    BAC_METABOLISM_RATE,
+    AVERAGE_GENDER_CONSTANT,
+    BAC_DISPLAY_CAP,
+    BAC_DECIMAL_PRECISION,
+    BAC_LEGAL_LIMIT
+)
 import plotly
 import plotly.graph_objs as go
 import json
