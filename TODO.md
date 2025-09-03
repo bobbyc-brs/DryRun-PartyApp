@@ -61,6 +61,7 @@ This file tracks planned improvements and future features for the Party Drink Tr
 - [x] Create host frontend with BAC visualization
 - [x] Implement data source handling (guest-list, drink-list.csv, drink images)
 - [x] Implement BAC calculation algorithm
+- [x] Fix BAC calculation issues (metabolism over time, realistic starting values)
 - [x] Create README with setup and usage instructions
 - [x] Create utility scripts for setup, running, and cleanup
 - [x] Implement placeholder image generation for drinks
