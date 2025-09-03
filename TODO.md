@@ -49,6 +49,7 @@ This file tracks planned improvements and future features for the Party Drink Tr
 
 ## Milestones
 - [x] Initial version tagged as "v0.1.0-first-attempt"
+- [x] Functional version tagged as "v0.3.0-working-with-bugs"
 
 ## Completed
 - [x] Set up Python virtual environment and project structure
