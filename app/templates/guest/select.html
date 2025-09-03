@@ -198,18 +198,19 @@ For inquiries, contact: Info@BrighterSight.ca
                             drinkHistory.appendChild(historyList);
                         }
                         
-                        // Show success message
+                        // Show success message at bottom of page
                         const alertDiv = document.createElement('div');
-                        alertDiv.classList.add('alert', 'alert-success', 'alert-dismissible', 'fade', 'show');
+                        alertDiv.classList.add('alert', 'alert-success', 'alert-dismissible', 'fade', 'show', 'position-fixed', 'bottom-0', 'end-0', 'm-3', 'mb-3');
+                        alertDiv.style.zIndex = '1050';
                         alertDiv.setAttribute('role', 'alert');
                         alertDiv.innerHTML = `
                             ${data.message}
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         `;
                         
-                        // Insert at the top of the container
+                        // Insert at the bottom of the container
                         const container = document.querySelector('.container');
-                        container.insertBefore(alertDiv, container.children[1]);
+                        container.appendChild(alertDiv);
                         
                         // Auto dismiss after 3 seconds
                         setTimeout(() => {
