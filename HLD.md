@@ -13,19 +13,19 @@ The application follows a modular Flask architecture with separate interfaces fo
 ```mermaid
 graph TB
     subgraph "Core Models"
-        G[Guest<br/>id, name, weight<br/>calculate_bac()]
-        D[Drink<br/>id, name, abv<br/>volume_ml]
-        C[Consumption<br/>guest_id, drink_id<br/>timestamp]
+        G[Guest\nid, name, weight\ncalculate_bac()]
+        D[Drink\nid, name, abv\nvolume_ml]
+        C[Consumption\nguest_id, drink_id\ntimestamp]
     end
 
     subgraph "Blueprints"
-        GB[GuestBlueprint<br/>index(), select_guest()<br/>add_drink()]
-        HB[HostBlueprint<br/>dashboard(), bac_chart()<br/>group_bac_chart()]
+        GB[GuestBlueprint\nindex(), select_guest()\nadd_drink()]
+        HB[HostBlueprint\ndashboard(), bac_chart()\ngroup_bac_chart()]
     end
 
     subgraph "Framework"
-        F[Flask<br/>create_app()<br/>register_blueprint()]
-        K[Constants<br/>BAC constants<br/>Conversion factors]
+        F[Flask\ncreate_app()\nregister_blueprint()]
+        K[Constants\nBAC constants\nConversion factors]
     end
 
     %% Relationships
@@ -244,8 +244,8 @@ sequenceDiagram
 ```mermaid
 graph TB
     subgraph "Frontend Layer"
-        GI[Guest Interface<br/>Port 4000]
-        HI[Host Interface<br/>Port 4001]
+        GI[Guest Interface: Port 4000]
+        HI[Host Interface: Port 4001]
     end
     
     subgraph "Application Layer"
@@ -257,12 +257,12 @@ graph TB
     
     subgraph "Data Layer"
         DB[(SQLite Database)]
-        FS[File System<br/>Guest List & Drink Data]
+        FS[File System\nguest List & Drink Data]
         IM[Image Storage]
     end
     
     subgraph "External Services"
-        CH[Chart Engine<br/>Plotly]
+        CH[Chart Engine\nPlotly]
         BR[Browser]
     end
     
@@ -331,8 +331,8 @@ flowchart TD
 graph TB
     subgraph "Production Environment"
         LB[Load Balancer]
-        WS1[Web Server 1<br/>Guest Interface]
-        WS2[Web Server 2<br/>Host Interface]
+        WS1[Web Server 1\nGuest Interface]
+        WS2[Web Server 2\nHost Interface]
         DB[(Production Database)]
         FS[File Storage]
     end
