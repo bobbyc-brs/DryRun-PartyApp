@@ -56,8 +56,8 @@ class Guest(db.Model):
             str: A string representation showing the guest's name.
         """
         return f"Guest('{self.name}')"
-    
-        def calculate_bac(self):
+
+    def calculate_bac(self):
         """
         Calculate Blood Alcohol Content (BAC) using the Widmark formula.
 
