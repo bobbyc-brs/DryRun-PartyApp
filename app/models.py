@@ -60,50 +60,53 @@ class Guest(db.Model):
     def calculate_bac(self):
         """
         Calculate Blood Alcohol Content (BAC) using a simplified Widmark formula.
-        
+
         The calculation considers:
         - Guest's weight (converted from pounds to kilograms)
         - Gender constant (assumed average for simplicity)
         - All drinks consumed and their alcohol content
-        - Time elapsed since each drink consumption
+        - Time elapsed since drinks were consumed
         - Alcohol metabolism rate over time
-        
+
         Returns:
             float: Current BAC as a percentage (0.0 to BAC_DISPLAY_CAP).
                   Returns 0.0 if guest has no weight or weight <= 0.
         """
         if not self.weight or self.weight <= 0:
             return 0.0
-            
+
+        if not self.drinks:
+            return 0.0
+
         # Using average gender constant for simplicity
         gender_constant = AVERAGE_GENDER_CONSTANT
-        
-        # Get all drinks consumed
-        total_alcohol_grams = 0
-        current_time = datetime.now()
-        
-        for consumption in self.drinks:
-            drink = consumption.drink
-            
-            # Calculate alcohol in grams
-            # ABV * volume(ml) * density of ethanol in g/ml
-            alcohol_grams = drink.abv * drink.volume_ml * ETHANOL_DENSITY_G_PER_ML / 100
-            
-            # Calculate time elapsed in hours
-            hours_elapsed = (current_time - consumption.timestamp).total_seconds() / 3600
-            
-            # Subtract metabolized alcohol based on metabolism rate
-            # Only count what's still in system
-            remaining_alcohol = max(0, alcohol_grams - (BAC_METABOLISM_RATE * hours_elapsed * self.weight * LBS_TO_KG_CONVERSION))
-            total_alcohol_grams += remaining_alcohol
-            
+
         # Convert weight from lbs to kg
         weight_kg = self.weight * LBS_TO_KG_CONVERSION
-        
-        # BAC = (alcohol in grams / (weight in kg * gender constant)) * 100
-        bac = (total_alcohol_grams / (weight_kg * gender_constant)) * 100
-        
-        return round(min(bac, BAC_DISPLAY_CAP), BAC_DECIMAL_PRECISION)  # Cap BAC display and round to specified decimal places
+
+        # Calculate total alcohol consumed
+        total_alcohol_grams = 0
+        current_time = datetime.now()
+
+        for consumption in self.drinks:
+            drink = consumption.drink
+            # Calculate alcohol in grams: ABV * volume(ml) * density of ethanol in g/ml / 100
+            alcohol_grams = drink.abv * drink.volume_ml * ETHANOL_DENSITY_G_PER_ML / 100
+            total_alcohol_grams += alcohol_grams
+
+        # Find the earliest consumption time to calculate total elapsed time
+        earliest_consumption = min(self.drinks, key=lambda c: c.timestamp)
+        total_hours_elapsed = (current_time - earliest_consumption.timestamp).total_seconds() / 3600
+
+        # Apply metabolism: subtract metabolized alcohol from total
+        # Metabolism rate is grams of alcohol per hour per kg of body weight
+        metabolized_grams = BAC_METABOLISM_RATE * total_hours_elapsed * weight_kg
+        remaining_alcohol_grams = max(0, total_alcohol_grams - metabolized_grams)
+
+        # BAC = (remaining alcohol in grams / (weight in kg * gender constant)) * 100
+        bac = (remaining_alcohol_grams / (weight_kg * gender_constant)) * 100
+
+        return round(min(bac, BAC_DISPLAY_CAP), BAC_DECIMAL_PRECISION)
 
 class Drink(db.Model):
     """
