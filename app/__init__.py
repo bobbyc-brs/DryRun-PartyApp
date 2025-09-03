@@ -1,4 +1,9 @@
 """
+Flask application factory for the Party Drink Tracker.
+
+This module contains the Flask application factory function that creates and configures
+the Flask app instance with all necessary blueprints, database configuration, and routes.
+
 Copyright (C) 2025 Brighter Sight
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -20,9 +25,20 @@ from flask import Flask, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 import os
 
+# Global SQLAlchemy instance
 db = SQLAlchemy()
 
 def create_app():
+    """
+    Create and configure the Flask application.
+    
+    This function creates a Flask app instance, configures it with database settings,
+    registers blueprints for guest and host interfaces, and sets up root route redirects
+    based on the port the application is running on.
+    
+    Returns:
+        Flask: The configured Flask application instance.
+    """
     app = Flask(__name__)
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-key-for-party-app')
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///party_drinks.db'
@@ -39,6 +55,15 @@ def create_app():
     # Add root route redirects
     @app.route('/')
     def index():
+        """
+        Root route that redirects to the appropriate interface based on port.
+        
+        Determines whether to redirect to the guest interface (port 4000) or host
+        interface (port 4001) based on the FLASK_RUN_PORT environment variable.
+        
+        Returns:
+            Response: Redirect response to the appropriate dashboard.
+        """
         # Check which port we're running on to determine if we're guest or host
         port = os.environ.get('FLASK_RUN_PORT', '4000')
         if port == '4001':

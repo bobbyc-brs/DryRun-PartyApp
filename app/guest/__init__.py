@@ -1,4 +1,10 @@
 """
+Guest interface package for the Party Drink Tracker application.
+
+This package contains all the components for the guest interface, including
+routes, templates, and static assets. The guest interface allows party
+attendees to view available drinks and register their consumption.
+
 Copyright (C) 2025 Brighter Sight
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

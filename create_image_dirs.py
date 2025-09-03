@@ -1,4 +1,13 @@
 """
+Directory creation utility for the Party Drink Tracker application.
+
+This script creates the necessary directories for storing drink images in both
+the application's static directory and the user's home directory. It ensures
+the proper directory structure exists for the application to function correctly.
+
+Usage:
+    python create_image_dirs.py
+
 Copyright (C) 2025 Brighter Sight
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -20,7 +29,15 @@ import os
 from pathlib import Path
 
 def create_image_directories():
-    """Create the necessary directories for drink images"""
+    """
+    Create the necessary directories for storing drink images.
+    
+    Creates two directories:
+    - app/static/images/drinks/ for application static images
+    - ~/drinks/ for user-accessible drink images
+    
+    The function checks if directories already exist before creating them.
+    """
     # Create static/images/drinks directory
     static_drinks_dir = Path(__file__).parent / 'app' / 'static' / 'images' / 'drinks'
     if not static_drinks_dir.exists():

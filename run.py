@@ -1,4 +1,13 @@
 """
+Guest interface server for the Party Drink Tracker application.
+
+This script starts the Flask development server for the guest interface on port 4000.
+Guests can access this interface to view available drinks and register their consumption.
+The server runs in development mode by default with debug enabled.
+
+Usage:
+    python run.py
+
 Copyright (C) 2025 Brighter Sight
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

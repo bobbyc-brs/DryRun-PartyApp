@@ -1,4 +1,11 @@
 """
+Guest interface routes for the Party Drink Tracker application.
+
+This module contains all the Flask routes for the guest interface, allowing
+guests to view available drinks, select drinks, and register their consumption.
+The guest interface runs on port 4000 and provides a simple, user-friendly
+interface for party attendees to log their drinks.
+
 Copyright (C) 2025 Brighter Sight
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -27,7 +34,16 @@ guest_bp = Blueprint('guest', __name__, url_prefix='/guest')
 
 @guest_bp.route('/', methods=['GET'])
 def index():
-    """Guest landing page showing the list of guests and drink options"""
+    """
+    Display the guest landing page with available guests and drinks.
+    
+    This route loads the guest list from ~/guest-list file and the drink list from
+    ~/drinks/drink-list.csv, creating database entries for any new guests or drinks
+    that don't already exist. It then renders the guest interface template.
+    
+    Returns:
+        str: Rendered HTML template for the guest interface.
+    """
     # Read guest list from file
     guest_list = []
     guest_list_path = os.path.expanduser('~/guest-list')
@@ -80,7 +96,18 @@ def index():
 
 @guest_bp.route('/select/<int:guest_id>', methods=['GET', 'POST'])
 def select_guest(guest_id):
-    """Page for a specific guest to select drinks"""
+    """
+    Display drink selection page for a specific guest.
+    
+    This route shows the drink selection interface for a specific guest. It handles
+    both GET requests (displaying the page) and POST requests (updating guest weight).
+    
+    Args:
+        guest_id (int): The ID of the guest to display the selection page for.
+        
+    Returns:
+        str: Rendered HTML template for the guest's drink selection page.
+    """
     guest = Guest.query.get_or_404(guest_id)
     drinks = Drink.query.all()
     
@@ -95,7 +122,15 @@ def select_guest(guest_id):
 
 @guest_bp.route('/add_drink', methods=['POST'])
 def add_drink():
-    """API endpoint to add a drink for a guest"""
+    """
+    API endpoint to record a drink consumption for a guest.
+    
+    This endpoint creates a new DrinkConsumption record when a guest selects a drink.
+    It validates that both the guest and drink exist before creating the consumption record.
+    
+    Returns:
+        JSON: Success response with consumption details or error message.
+    """
     guest_id = request.form.get('guest_id')
     drink_id = request.form.get('drink_id')
     

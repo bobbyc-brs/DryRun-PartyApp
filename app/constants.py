@@ -1,4 +1,17 @@
 """
+Constants and configuration values for the Party Drink Tracker application.
+
+This module centralizes all constants, magic numbers, and configuration values
+used throughout the application. This makes the code more maintainable, easier
+to understand, and allows for easy modification of key parameters.
+
+The constants are organized into logical groups:
+- BAC Calculation Constants: Values used in Blood Alcohol Content calculations
+- Time Constants: Time-related parameters for charts and calculations
+- UI Constants: Display and interface-related values
+- Server Constants: Port and server configuration
+- File Paths: Default paths for data files
+
 Copyright (C) 2025 Brighter Sight
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -14,13 +27,6 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 For inquiries, contact: Info@BrighterSight.ca
-"""
-
-"""
-Constants used throughout the Party Drink Tracker application.
-
-This module centralizes all constants and magic numbers used in the application,
-making them easier to maintain, document, and modify.
 """
 
 # BAC Calculation Constants

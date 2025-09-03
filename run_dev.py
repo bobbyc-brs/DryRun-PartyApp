@@ -1,4 +1,14 @@
 """
+Development server script for the Party Drink Tracker application.
+
+This script runs both the guest and host servers simultaneously in development mode,
+automatically opens browsers to both interfaces, and handles initialization of
+sample data if needed. It provides a convenient way to start the full application
+for development and testing purposes.
+
+Usage:
+    python run_dev.py
+
 Copyright (C) 2025 Brighter Sight
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -17,7 +27,6 @@ For inquiries, contact: Info@BrighterSight.ca
 """
 
 #!/usr/bin/env python
-"""Development script to run both guest and host servers"""
 
 import os
 import sys
@@ -28,7 +37,13 @@ import webbrowser
 from pathlib import Path
 
 def run_server(script_path, port):
-    """Run a server script in a subprocess"""
+    """
+    Run a server script in a subprocess with development environment variables.
+    
+    Args:
+        script_path (str): Path to the server script to run.
+        port (int): Port number for the server (used for logging).
+    """
     env = os.environ.copy()
     env['FLASK_ENV'] = 'development'
     env['FLASK_DEBUG'] = 'True'
@@ -36,7 +51,13 @@ def run_server(script_path, port):
     subprocess.run([sys.executable, script_path], env=env)
 
 def open_browser(port, delay=2):
-    """Open browser after a delay"""
+    """
+    Open browser to the specified port after a delay.
+    
+    Args:
+        port (int): Port number to open in the browser.
+        delay (int): Delay in seconds before opening the browser.
+    """
     def _open_browser():
         time.sleep(delay)
         webbrowser.open(f'http://localhost:{port}')
@@ -46,7 +67,17 @@ def open_browser(port, delay=2):
     thread.start()
 
 def main():
-    """Main function to run both servers"""
+    """
+    Main function to run both guest and host servers in development mode.
+    
+    This function handles the complete development setup including:
+    - Virtual environment validation
+    - Sample data initialization if needed
+    - Placeholder image creation if needed
+    - Starting both servers in separate threads
+    - Opening browsers to both interfaces
+    - Keeping the main thread alive until interrupted
+    """
     project_dir = Path(__file__).parent.absolute()
     guest_script = project_dir / 'run.py'
     host_script = project_dir / 'run_host.py'

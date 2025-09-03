@@ -1,4 +1,13 @@
 """
+Cleanup utility script for the Party Drink Tracker application.
+
+This script removes all generated data files including guest lists, drink data,
+database files, and Python cache directories. It provides a safe way to reset
+the application to its initial state.
+
+Usage:
+    python cleanup.py
+
 Copyright (C) 2025 Brighter Sight
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -17,7 +26,6 @@ For inquiries, contact: Info@BrighterSight.ca
 """
 
 #!/usr/bin/env python
-"""Cleanup script to remove generated data files"""
 
 import os
 import shutil
@@ -25,7 +33,17 @@ from pathlib import Path
 import sys
 
 def main():
-    """Main cleanup function"""
+    """
+    Main cleanup function for removing generated data files.
+    
+    This function interactively removes all generated data files including:
+    - Guest list file (~/guest-list)
+    - Drinks directory and contents (~/drinks/)
+    - SQLite database file
+    - Python cache directories (__pycache__)
+    
+    The function requires user confirmation before proceeding with cleanup.
+    """
     print("Party Drink Tracker Cleanup Utility")
     print("==================================")
     print("This will remove all generated data files, including:")

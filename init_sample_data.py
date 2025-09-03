@@ -1,4 +1,13 @@
 """
+Sample data initialization script for the Party Drink Tracker application.
+
+This script creates sample data files and populates the database with initial
+guest and drink information for testing and demonstration purposes. It creates
+a guest list file, drink list CSV, and populates the database with sample data.
+
+Usage:
+    python init_sample_data.py
+
 Copyright (C) 2025 Brighter Sight
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -24,7 +33,12 @@ from app import create_app, db
 from app.models import Guest, Drink
 
 def create_sample_guest_list():
-    """Create a sample guest list file in the home directory"""
+    """
+    Create a sample guest list file in the home directory.
+    
+    Creates a ~/guest-list file with sample guest names if it doesn't already exist.
+    The guest list is used by the application to populate the guest interface.
+    """
     guest_list_path = os.path.expanduser('~/guest-list')
     
     # Check if file already exists
@@ -51,7 +65,13 @@ def create_sample_guest_list():
     print(f"Created sample guest list at {guest_list_path}")
 
 def create_sample_drink_list():
-    """Create a sample drink list CSV file in ~/drinks/"""
+    """
+    Create a sample drink list CSV file in ~/drinks/ directory.
+    
+    Creates a ~/drinks/drink-list.csv file with sample drink data including
+    name, ABV, volume, and image filename if it doesn't already exist.
+    The drink list is used by the application to populate available drinks.
+    """
     drinks_dir = os.path.expanduser('~/drinks')
     
     # Create directory if it doesn't exist
@@ -85,7 +105,13 @@ def create_sample_drink_list():
     print(f"Created sample drink list at {drink_list_path}")
 
 def copy_sample_images():
-    """Create placeholder drink images"""
+    """
+    Create placeholder drink images for the application.
+    
+    Attempts to use the create_placeholder_images module to generate proper
+    placeholder images. Falls back to creating simple text placeholder files
+    if the module is not available.
+    """
     try:
         from create_placeholder_images import create_all_placeholder_images
         create_all_placeholder_images()
@@ -125,7 +151,13 @@ def copy_sample_images():
                 print(f"Copied {drink_image} to {target_dir}")
 
 def initialize_database():
-    """Initialize the database with sample data"""
+    """
+    Initialize the database with sample data.
+    
+    Creates the database tables and populates them with sample guest and drink
+    data from the created files. This function sets up the initial state of
+    the application for testing and demonstration.
+    """
     app = create_app()
     with app.app_context():
         # Create tables

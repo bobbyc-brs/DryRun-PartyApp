@@ -1,4 +1,14 @@
 """
+Placeholder image generation script for the Party Drink Tracker application.
+
+This script generates placeholder images for drinks using the Pillow library.
+It creates simple text-based placeholder images that can be used when actual
+drink images are not available. The images are saved to the application's
+static images directory.
+
+Usage:
+    python create_placeholder_images.py
+
 Copyright (C) 2025 Brighter Sight
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -21,7 +31,16 @@ import os
 from pathlib import Path
 
 def create_placeholder_image(filename, text, size=(200, 200), bg_color=(240, 240, 240), text_color=(100, 100, 100)):
-    """Create a simple placeholder image with text"""
+    """
+    Create a simple placeholder image with text.
+    
+    Args:
+        filename (str): Path where the image should be saved.
+        text (str): Text to display on the placeholder image.
+        size (tuple): Image dimensions as (width, height). Defaults to (200, 200).
+        bg_color (tuple): Background color as RGB tuple. Defaults to light gray.
+        text_color (tuple): Text color as RGB tuple. Defaults to dark gray.
+    """
     img = Image.new('RGB', size, color=bg_color)
     draw = ImageDraw.Draw(img)
     
@@ -50,7 +69,13 @@ def create_placeholder_image(filename, text, size=(200, 200), bg_color=(240, 240
     print(f"Created placeholder image: {filename}")
 
 def create_all_placeholder_images():
-    """Create placeholder images for all drinks"""
+    """
+    Create placeholder images for all drink types.
+    
+    Generates placeholder images for all predefined drink types in both the
+    application's static directory and the user's home drinks directory.
+    Images are only created if they don't already exist.
+    """
     # Define the drinks
     drinks = [
         "beer", "wine", "whiskey", "vodka", 

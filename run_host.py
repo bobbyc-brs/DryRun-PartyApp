@@ -1,4 +1,13 @@
 """
+Host interface server for the Party Drink Tracker application.
+
+This script starts the Flask development server for the host interface on port 4001.
+Hosts can access this interface to monitor guest consumption, view BAC levels,
+and access interactive charts for party safety monitoring.
+
+Usage:
+    python run_host.py
+
 Copyright (C) 2025 Brighter Sight
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

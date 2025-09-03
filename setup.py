@@ -1,4 +1,13 @@
 """
+Setup script for the Party Drink Tracker application.
+
+This script automates the initial setup process for the Party Drink Tracker,
+including virtual environment creation, dependency installation, and sample
+data initialization. It provides an interactive setup experience for new users.
+
+Usage:
+    python setup.py
+
 Copyright (C) 2025 Brighter Sight
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -17,7 +26,6 @@ For inquiries, contact: Info@BrighterSight.ca
 """
 
 #!/usr/bin/env python
-"""Setup script for Party Drink Tracker"""
 
 import os
 import subprocess
@@ -25,7 +33,18 @@ import sys
 from pathlib import Path
 
 def main():
-    """Main setup function"""
+    """
+    Main setup function for the Party Drink Tracker application.
+    
+    This function handles the complete setup process including:
+    - Virtual environment creation (if not already in one)
+    - Dependency installation from requirements.txt
+    - Directory structure creation
+    - Sample data initialization
+    
+    The function provides interactive prompts for virtual environment creation
+    and gives clear instructions for next steps after setup completion.
+    """
     project_dir = Path(__file__).parent.absolute()
     
     print("Setting up Party Drink Tracker...")

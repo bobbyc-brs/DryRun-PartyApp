@@ -1,4 +1,11 @@
 """
+Host interface package for the Party Drink Tracker application.
+
+This package contains all the components for the host interface, including
+routes, templates, and static assets. The host interface allows party hosts
+to monitor guest consumption, view BAC levels, and access interactive charts
+for party safety monitoring.
+
 Copyright (C) 2025 Brighter Sight
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

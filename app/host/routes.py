@@ -1,4 +1,11 @@
 """
+Host interface routes for the Party Drink Tracker application.
+
+This module contains all the Flask routes for the host interface, providing
+monitoring capabilities for party hosts. The host interface runs on port 4001
+and includes dashboard views, BAC calculations, and interactive charts showing
+guest consumption patterns and estimated blood alcohol levels.
+
 Copyright (C) 2025 Brighter Sight
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -27,13 +34,31 @@ host_bp = Blueprint('host', __name__, url_prefix='/host')
 
 @host_bp.route('/', methods=['GET'])
 def dashboard():
-    """Host dashboard showing guest consumption and BAC levels"""
+    """
+    Display the host dashboard with guest consumption monitoring.
+    
+    This route renders the main host dashboard that shows all guests and their
+    consumption data. The dashboard includes real-time BAC calculations and
+    interactive charts for monitoring party safety.
+    
+    Returns:
+        str: Rendered HTML template for the host dashboard.
+    """
     guests = Guest.query.all()
     return render_template('host/dashboard.html', guests=guests)
 
 @host_bp.route('/guest_data', methods=['GET'])
 def guest_data():
-    """API endpoint to get consumption data for all guests"""
+    """
+    API endpoint to get consumption data for all guests.
+    
+    This endpoint returns JSON data containing each guest's consumption information,
+    including drink counts by type and current BAC levels. Used by the dashboard
+    to display real-time consumption statistics.
+    
+    Returns:
+        JSON: List of guest data with consumption statistics and BAC levels.
+    """
     guests = Guest.query.all()
     data = []
     
@@ -66,7 +91,19 @@ def guest_data():
 
 @host_bp.route('/bac_chart/<int:guest_id>', methods=['GET'])
 def bac_chart(guest_id):
-    """Generate BAC chart for a specific guest"""
+    """
+    Generate BAC chart data for a specific guest.
+    
+    This endpoint creates a Plotly chart showing the estimated BAC over time for
+    a specific guest. The chart shows BAC levels over the past 6 hours at 15-minute
+    intervals, including drink consumption markers.
+    
+    Args:
+        guest_id (int): The ID of the guest to generate the chart for.
+        
+    Returns:
+        JSON: Plotly chart configuration as JSON string.
+    """
     guest = Guest.query.get_or_404(guest_id)
     
     if not guest.weight or guest.weight <= 0:
@@ -193,7 +230,17 @@ def bac_chart(guest_id):
 
 @host_bp.route('/group_bac_chart', methods=['GET'])
 def group_bac_chart():
-    """Generate BAC chart for all guests"""
+    """
+    Generate BAC chart data for all guests with valid data.
+    
+    This endpoint creates a Plotly chart showing the estimated BAC over time for
+    all guests who have weight information and have consumed drinks. The chart
+    displays multiple lines, one for each guest, showing BAC levels over the
+    past 6 hours at 15-minute intervals.
+    
+    Returns:
+        JSON: Plotly chart configuration as JSON string, or empty chart if no valid guests.
+    """
     guests = Guest.query.all()
     
     # Only include guests with weight and drinks
