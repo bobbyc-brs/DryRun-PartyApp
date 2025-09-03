@@ -13,7 +13,7 @@ The application follows a modular Flask architecture with separate interfaces fo
 ```mermaid
 graph TB
     subgraph "Core Models"
-        G[Guest\nid, name, weight\ncalculate_bac()]
+        G[Guest\nid, name, weight\ncalculate_bac]
         D[Drink\nid, name, abv\nvolume_ml]
         C[Consumption\nguest_id, drink_id\ntimestamp]
     end
