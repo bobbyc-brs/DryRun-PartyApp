@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Party Drink Tracker - Host Dashboard</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <div class="container-fluid py-4">
+        <div class="row mb-4">
+            <div class="col-12 text-center">
+                <h1 class="display-4">🍻 Party Drink Tracker</h1>
+                <p class="lead">Host Dashboard - Monitor your guests' consumption</p>
+            </div>
+        </div>
+        
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                        <h2 class="h4 mb-0">Group BAC Chart</h2>
+                        <button id="refresh-btn" class="btn btn-sm btn-light">
+                            Refresh Data
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div id="group-bac-chart" class="chart-container"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <h2 class="h4 mb-0">Guest Summary</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Guest</th>
+                                        <th>Weight</th>
+                                        <th>Drinks</th>
+                                        <th>Est. BAC</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="guest-summary">
+                                    <tr>
+                                        <td colspan="5" class="text-center">Loading guest data...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h2 class="h4 mb-0">Individual BAC Chart</h2>
+                    </div>
+                    <div class="card-body">
+                        <div id="individual-bac-chart" class="chart-container">
+                            <p class="text-center text-muted">Select a guest to view their BAC chart</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-12 text-center">
+                <p class="text-muted">
+                    <small>Party Drink Tracker &copy; 2025 Brighter Sight</small>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load initial data
+            loadGuestData();
+            loadGroupBACChart();
+            
+            // Set up refresh button
+            document.getElementById('refresh-btn').addEventListener('click', function() {
+                loadGuestData();
+                loadGroupBACChart();
+                
+                // Reload individual chart if a guest is selected
+                const selectedGuestId = this.dataset.selectedGuestId;
+                if (selectedGuestId) {
+                    loadIndividualBACChart(selectedGuestId);
+                }
+            });
+            
+            // Auto-refresh every 60 seconds
+            setInterval(() => {
+                loadGuestData();
+                loadGroupBACChart();
+                
+                // Reload individual chart if a guest is selected
+                const refreshBtn = document.getElementById('refresh-btn');
+                const selectedGuestId = refreshBtn.dataset.selectedGuestId;
+                if (selectedGuestId) {
+                    loadIndividualBACChart(selectedGuestId);
+                }
+            }, 60000);
+        });
+        
+        function loadGuestData() {
+            fetch('{{ url_for("host.guest_data") }}')
+                .then(response => response.json())
+                .then(data => {
+                    const guestSummary = document.getElementById('guest-summary');
+                    
+                    if (data.length === 0) {
+                        guestSummary.innerHTML = `
+                            <tr>
+                                <td colspan="5" class="text-center">No guest data available</td>
+                            </tr>
+                        `;
+                        return;
+                    }
+                    
+                    let tableContent = '';
+                    
+                    data.forEach(guest => {
+                        // Determine BAC class based on value
+                        let bacClass = 'text-success';
+                        if (guest.bac >= 0.08) {
+                            bacClass = 'text-danger fw-bold';
+                        } else if (guest.bac >= 0.05) {
+                            bacClass = 'text-warning fw-bold';
+                        }
+                        
+                        // Format drink breakdown
+                        let drinkBreakdown = '';
+                        for (const [drink, count] of Object.entries(guest.drink_breakdown)) {
+                            drinkBreakdown += `${drink}: ${count}<br>`;
+                        }
+                        
+                        tableContent += `
+                            <tr>
+                                <td>${guest.name}</td>
+                                <td>${guest.weight ? guest.weight + ' lbs' : 'Not set'}</td>
+                                <td data-bs-toggle="tooltip" data-bs-html="true" title="${drinkBreakdown}">
+                                    ${guest.total_drinks}
+                                </td>
+                                <td class="${bacClass}">
+                                    ${guest.bac.toFixed(3)}%
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary view-bac-btn" 
+                                            data-guest-id="${guest.id}"
+                                            data-guest-name="${guest.name}">
+                                        View Chart
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                    
+                    guestSummary.innerHTML = tableContent;
+                    
+                    // Initialize tooltips
+                    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+                    tooltipTriggerList.map(function (tooltipTriggerEl) {
+                        return new bootstrap.Tooltip(tooltipTriggerEl);
+                    });
+                    
+                    // Add event listeners to view BAC buttons
+                    const viewBACButtons = document.querySelectorAll('.view-bac-btn');
+                    viewBACButtons.forEach(button => {
+                        button.addEventListener('click', function() {
+                            const guestId = this.dataset.guestId;
+                            const guestName = this.dataset.guestName;
+                            
+                            // Store the selected guest ID for refresh
+                            document.getElementById('refresh-btn').dataset.selectedGuestId = guestId;
+                            
+                            loadIndividualBACChart(guestId);
+                        });
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading guest data:', error);
+                    document.getElementById('guest-summary').innerHTML = `
+                        <tr>
+                            <td colspan="5" class="text-center text-danger">
+                                Error loading guest data
+                            </td>
+                        </tr>
+                    `;
+                });
+        }
+        
+        function loadGroupBACChart() {
+            fetch('{{ url_for("host.group_bac_chart") }}')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    try {
+                        const chartDiv = document.getElementById('group-bac-chart');
+                        // The server now returns a JSON object with the Plotly figure as a string
+                        Plotly.newPlot(chartDiv, JSON.parse(data));
+                    } catch (error) {
+                        console.error('Error parsing chart data:', error);
+                        document.getElementById('group-bac-chart').innerHTML = `
+                            <p class="text-center text-danger">Error parsing chart data</p>
+                        `;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading group BAC chart:', error);
+                    document.getElementById('group-bac-chart').innerHTML = `
+                        <p class="text-center text-danger">Error loading group BAC chart</p>
+                    `;
+                });
+        }
+        
+        function loadIndividualBACChart(guestId) {
+            const chartDiv = document.getElementById('individual-bac-chart');
+            chartDiv.innerHTML = `<p class="text-center">Loading chart...</p>`;
+            
+            fetch(`{{ url_for("host.bac_chart", guest_id=0) }}`.replace('0', guestId))
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    try {
+                        // The server now returns a JSON object with the Plotly figure as a string
+                        Plotly.newPlot(chartDiv, JSON.parse(data));
+                    } catch (error) {
+                        console.error('Error parsing chart data:', error);
+                        chartDiv.innerHTML = `
+                            <p class="text-center text-danger">Error parsing chart data</p>
+                        `;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading individual BAC chart:', error);
+                    chartDiv.innerHTML = `
+                        <p class="text-center text-danger">Error loading individual BAC chart</p>
+                    `;
+                });
+        }
+    </script>
+</body>
+</html>

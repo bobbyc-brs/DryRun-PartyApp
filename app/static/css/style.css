@@ -1,0 +1,95 @@
+/* Party Drink Tracker Styles */
+
+body {
+    background-color: #f8f9fa;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.guest-card {
+    transition: transform 0.2s ease-in-out;
+    cursor: pointer;
+    border: 1px solid #dee2e6;
+}
+
+.guest-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    border-color: #007bff;
+}
+
+.drink-card {
+    transition: transform 0.2s ease-in-out;
+    height: 100%;
+    border: 1px solid #dee2e6;
+}
+
+.drink-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.drink-image-container {
+    height: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background-color: #f1f1f1;
+}
+
+.drink-image-container img {
+    max-height: 100%;
+    max-width: 100%;
+    object-fit: contain;
+}
+
+.placeholder-image {
+    font-size: 4rem;
+    color: #6c757d;
+}
+
+.chart-container {
+    min-height: 400px;
+    width: 100%;
+}
+
+/* BAC color indicators */
+.bac-safe {
+    color: #28a745;
+}
+
+.bac-warning {
+    color: #ffc107;
+    font-weight: bold;
+}
+
+.bac-danger {
+    color: #dc3545;
+    font-weight: bold;
+}
+
+/* Custom card header colors */
+.card-header.bg-primary {
+    background-color: #007bff !important;
+}
+
+.card-header.bg-success {
+    background-color: #28a745 !important;
+}
+
+.card-header.bg-info {
+    background-color: #17a2b8 !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .chart-container {
+        min-height: 300px;
+    }
+}
+
+@media (max-width: 576px) {
+    .chart-container {
+        min-height: 250px;
+    }
+}

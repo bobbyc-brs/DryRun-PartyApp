@@ -1,0 +1,44 @@
+# Party Drink Tracker - TODO List
+
+This file tracks planned improvements and future features for the Party Drink Tracker application.
+
+## Future Improvements
+
+### High Priority
+- [x] Fix chart display issues in host dashboard
+- [ ] Move the Status Pop-Ups for each drink to bottom of page
+- [ ] Fix time display: Convert UTC timestamps to local time for better user experience
+- [ ] Add ability to create/add new users through the interface
+- [ ] Allow setting guest weights during initial setup
+- [x] Refactor magic numbers into constants (e.g., BAC calculation parameters, alcohol density)
+  - [x] Created app/constants.py with documented constants
+  - [x] Updated models.py to use constants
+  - [ ] Update remaining files to use constants
+
+### Medium Priority
+- [ ] Improve mobile responsiveness of both interfaces
+- [ ] Add option to delete/undo drink entries in case of mistakes
+- [ ] Implement user authentication for the host interface
+- [ ] Add drink customization (custom ABV/volume)
+
+### Low Priority
+- [ ] Add dark mode toggle
+- [ ] Create data export functionality (CSV/PDF)
+- [ ] Implement drink suggestions based on current BAC
+- [ ] Add internationalization support (i18n)
+
+## Completed
+- [x] Set up Python virtual environment and project structure
+- [x] Create requirements.txt with necessary dependencies
+- [x] Define data models for guests, drinks, and consumption tracking
+- [x] Implement guest API (port 4000) for registering drinks
+- [x] Implement host API (port 4001) for monitoring consumption
+- [x] Create guest frontend with drink selection interface
+- [x] Create host frontend with BAC visualization
+- [x] Implement data source handling (guest-list, drink-list.csv, drink images)
+- [x] Implement BAC calculation algorithm
+- [x] Create README with setup and usage instructions
+- [x] Create utility scripts for setup, running, and cleanup
+- [x] Implement placeholder image generation for drinks
+- [x] Add root route redirects to fix 404 errors
+- [x] Fix empty chart error in host dashboard

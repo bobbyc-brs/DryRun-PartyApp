@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ guest.name }} - Drink Selection</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container py-4">
+        <div class="row mb-3">
+            <div class="col-12">
+                <a href="{{ url_for('guest.index') }}" class="btn btn-outline-secondary mb-3">
+                    &larr; Back to Guest Selection
+                </a>
+                <h1 class="display-5">Hello, {{ guest.name }}! 🍻</h1>
+                <p class="lead">Select drinks you consume throughout the party</p>
+            </div>
+        </div>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h2 class="h5 mb-0">Your Information</h2>
+                    </div>
+                    <div class="card-body">
+                        <form method="POST">
+                            <div class="mb-3">
+                                <label for="weight" class="form-label">Your Weight (lbs)</label>
+                                <input type="number" class="form-control" id="weight" name="weight" 
+                                       value="{{ guest.weight|default('', true) }}" min="50" max="500" step="0.1" required>
+                                <div class="form-text">
+                                    This helps calculate your estimated BAC more accurately
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Save Weight</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h2 class="h5 mb-0">Your Drink History</h2>
+                    </div>
+                    <div class="card-body">
+                        <div id="drink-history">
+                            {% if guest.drinks|length > 0 %}
+                                <ul class="list-group">
+                                {% for consumption in guest.drinks|sort(attribute='timestamp', reverse=true) %}
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        {{ consumption.drink.name }} 
+                                        <span class="badge bg-primary rounded-pill">
+                                            {{ consumption.timestamp.strftime('%H:%M:%S') }}
+                                        </span>
+                                    </li>
+                                {% endfor %}
+                                </ul>
+                            {% else %}
+                                <p class="text-center">No drinks recorded yet</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <h2 class="h5 mb-0">Select Your Drink</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="row row-cols-2 row-cols-md-4 g-4">
+                            {% for drink in drinks %}
+                            <div class="col">
+                                <div class="card h-100 drink-card" data-drink-id="{{ drink.id }}">
+                                    <div class="drink-image-container">
+                                        {% if drink.image_path %}
+                                            <img src="{{ url_for('static', filename=drink.image_path) }}" 
+                                                 class="card-img-top" alt="{{ drink.name }}">
+                                        {% else %}
+                                            <div class="placeholder-image">🍺</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="card-body text-center">
+                                        <h5 class="card-title">{{ drink.name }}</h5>
+                                        <p class="card-text">
+                                            {{ drink.volume_ml }}ml | {{ drink.abv }}% ABV
+                                        </p>
+                                        <button class="btn btn-primary btn-sm add-drink-btn" 
+                                                data-drink-id="{{ drink.id }}" 
+                                                data-drink-name="{{ drink.name }}">
+                                            I had this drink
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            {% else %}
+                            <div class="col-12 text-center">
+                                <p>No drinks available. Please add drinks to the system.</p>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add event listeners to all drink buttons
+            const addDrinkButtons = document.querySelectorAll('.add-drink-btn');
+            addDrinkButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const drinkId = this.dataset.drinkId;
+                    const drinkName = this.dataset.drinkName;
+                    addDrink(drinkId, drinkName);
+                });
+            });
+            
+            // Function to add a drink via AJAX
+            function addDrink(drinkId, drinkName) {
+                const formData = new FormData();
+                formData.append('guest_id', '{{ guest.id }}');
+                formData.append('drink_id', drinkId);
+                
+                fetch('{{ url_for("guest.add_drink") }}', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Update the drink history
+                        const drinkHistory = document.getElementById('drink-history');
+                        
+                        // Check if there's a "No drinks recorded yet" message
+                        if (drinkHistory.querySelector('p')) {
+                            drinkHistory.innerHTML = '<ul class="list-group"></ul>';
+                        }
+                        
+                        const historyList = drinkHistory.querySelector('ul') || document.createElement('ul');
+                        historyList.classList.add('list-group');
+                        
+                        // Create new list item
+                        const listItem = document.createElement('li');
+                        listItem.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-center');
+                        
+                        // Add drink name
+                        listItem.textContent = drinkName + ' ';
+                        
+                        // Add timestamp badge
+                        const badge = document.createElement('span');
+                        badge.classList.add('badge', 'bg-primary', 'rounded-pill');
+                        badge.textContent = data.timestamp;
+                        listItem.appendChild(badge);
+                        
+                        // Add to the top of the list
+                        historyList.insertBefore(listItem, historyList.firstChild);
+                        
+                        if (!drinkHistory.contains(historyList)) {
+                            drinkHistory.appendChild(historyList);
+                        }
+                        
+                        // Show success message
+                        const alertDiv = document.createElement('div');
+                        alertDiv.classList.add('alert', 'alert-success', 'alert-dismissible', 'fade', 'show');
+                        alertDiv.setAttribute('role', 'alert');
+                        alertDiv.innerHTML = `
+                            ${data.message}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        `;
+                        
+                        // Insert at the top of the container
+                        const container = document.querySelector('.container');
+                        container.insertBefore(alertDiv, container.children[1]);
+                        
+                        // Auto dismiss after 3 seconds
+                        setTimeout(() => {
+                            alertDiv.classList.remove('show');
+                            setTimeout(() => alertDiv.remove(), 150);
+                        }, 3000);
+                    } else {
+                        alert('Error: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while adding the drink');
+                });
+            }
+        });
+    </script>
+</body>
+</html>
