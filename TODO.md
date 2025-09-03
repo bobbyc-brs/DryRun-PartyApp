@@ -14,6 +14,8 @@ This file tracks planned improvements and future features for the Party Drink Tr
   - [x] Created app/constants.py with documented constants
   - [x] Updated models.py to use constants
   - [ ] Update remaining files to use constants
+- [ ] Move project init/setup files to their own directory
+- [ ] Get images from `https://github.com/bobbyc-brs/Test2-PartyApp/tree/main/drinks`
 
 ### Medium Priority
 - [ ] Improve mobile responsiveness of both interfaces
@@ -26,6 +28,9 @@ This file tracks planned improvements and future features for the Party Drink Tr
 - [ ] Create data export functionality (CSV/PDF)
 - [ ] Implement drink suggestions based on current BAC
 - [ ] Add internationalization support (i18n)
+
+## Milestones
+- [x] Initial version tagged as "v0.1.0-first-attempt"
 
 ## Completed
 - [x] Set up Python virtual environment and project structure
