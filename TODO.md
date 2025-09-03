@@ -24,7 +24,7 @@ This file tracks planned improvements and future features for the Party Drink Tr
 
 ### High Priority
 - [x] Fix chart display issues in host dashboard
-- [ ] Move the Status Pop-Ups for each drink to bottom of page
+- [x] Move the Status Pop-Ups for each drink to bottom of page
 - [ ] Fix time display: Convert UTC timestamps to local time for better user experience
 - [ ] Add ability to create/add new users through the interface
 - [ ] Allow setting guest weights during initial setup
