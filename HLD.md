@@ -11,76 +11,35 @@ The application follows a modular Flask architecture with separate interfaces fo
 ## Class Diagram
 
 ```mermaid
-classDiagram
-    %% Main application classes
-    class Guest {
-        +int id
-        +string name
-        +float weight
-        +List~Consumption~ drinks
-        +calculate_bac() float
-        +__repr__() string
-    }
+graph TB
+    subgraph "Core Models"
+        G[Guest<br/>id, name, weight<br/>calculate_bac()]
+        D[Drink<br/>id, name, abv<br/>volume_ml]
+        C[Consumption<br/>guest_id, drink_id<br/>timestamp]
+    end
 
-    class Drink {
-        +int id
-        +string name
-        +string image_path
-        +float abv
-        +float volume_ml
-        +List~Consumption~ consumptions
-        +__repr__() string
-    }
+    subgraph "Blueprints"
+        GB[GuestBlueprint<br/>index(), select_guest()<br/>add_drink()]
+        HB[HostBlueprint<br/>dashboard(), bac_chart()<br/>group_bac_chart()]
+    end
 
-    class Consumption {
-        +int id
-        +int guest_id
-        +int drink_id
-        +datetime timestamp
-        +__repr__() string
-    }
-
-    %% Blueprints
-    class GuestBlueprint {
-        +index() Response
-        +select_guest(id) Response
-        +add_drink() JSON
-    }
-
-    class HostBlueprint {
-        +dashboard() Response
-        +guest_data() JSON
-        +bac_chart(id) JSON
-        +group_bac_chart() JSON
-    }
-
-    %% Configuration
-    class Constants {
-        +ETHANOL_DENSITY
-        +GENDER_CONSTANT
-        +METABOLISM_RATE
-        +WEIGHT_CONVERSION
-        +BAC_DISPLAY_CAP
-        +DECIMAL_PRECISION
-    }
-
-    %% Flask framework
-    class Flask {
-        +create_app()
-        +register_blueprint()
-        +run()
-    }
+    subgraph "Framework"
+        F[Flask<br/>create_app()<br/>register_blueprint()]
+        K[Constants<br/>BAC constants<br/>Conversion factors]
+    end
 
     %% Relationships
-    Guest ||--o{ Consumption : "consumes"
-    Drink ||--o{ Consumption : "consumed as"
-    GuestBlueprint --> Guest : "manages"
-    GuestBlueprint --> Drink : "displays"
-    GuestBlueprint --> Consumption : "creates"
-    HostBlueprint --> Guest : "monitors"
-    HostBlueprint --> Consumption : "analyzes"
-    Guest --> Constants : "uses for BAC"
-    HostBlueprint --> Constants : "uses for charts"
+    G --> C
+    D --> C
+    GB --> G
+    GB --> D
+    GB --> C
+    HB --> G
+    HB --> C
+    G --> K
+    HB --> K
+    F --> GB
+    F --> HB
 ```
 
 **Note**: `Consumption` represents `DrinkConsumption` class. All constant names have been abbreviated for diagram clarity.
