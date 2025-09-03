@@ -57,12 +57,12 @@ class Guest(db.Model):
         """
         return f"Guest('{self.name}')"
     
-    def calculate_bac(self):
+        def calculate_bac(self):
         """
-        Calculate Blood Alcohol Content (BAC) using a simplified Widmark formula.
+        Calculate Blood Alcohol Content (BAC) using the Widmark formula.
 
         The calculation considers:
-        - Guest's weight (converted from pounds to kilograms)
+        - Guest's weight (converted from pounds to grams)
         - Gender constant (assumed average for simplicity)
         - All drinks consumed and their alcohol content
         - Time elapsed since drinks were consumed
@@ -81,8 +81,8 @@ class Guest(db.Model):
         # Using average gender constant for simplicity
         gender_constant = AVERAGE_GENDER_CONSTANT
 
-        # Convert weight from lbs to kg
-        weight_kg = self.weight * LBS_TO_KG_CONVERSION
+        # Convert weight from lbs to grams (Widmark formula requires grams)
+        weight_grams = self.weight * LBS_TO_KG_CONVERSION * 1000
 
         # Calculate total alcohol consumed
         total_alcohol_grams = 0
@@ -94,17 +94,17 @@ class Guest(db.Model):
             alcohol_grams = drink.abv * drink.volume_ml * ETHANOL_DENSITY_G_PER_ML / 100
             total_alcohol_grams += alcohol_grams
 
+        # Calculate BAC from total alcohol consumed
+        bac = (total_alcohol_grams / (weight_grams * gender_constant)) * 100
+
+        # Apply metabolism: BAC decreases by ~0.015% per hour
         # Find the earliest consumption time to calculate total elapsed time
         earliest_consumption = min(self.drinks, key=lambda c: c.timestamp)
         total_hours_elapsed = (current_time - earliest_consumption.timestamp).total_seconds() / 3600
 
-        # Apply metabolism: subtract metabolized alcohol from total
-        # Metabolism rate is grams of alcohol per hour per kg of body weight
-        metabolized_grams = BAC_METABOLISM_RATE * total_hours_elapsed * weight_kg
-        remaining_alcohol_grams = max(0, total_alcohol_grams - metabolized_grams)
-
-        # BAC = (remaining alcohol in grams / (weight in kg * gender constant)) * 100
-        bac = (remaining_alcohol_grams / (weight_kg * gender_constant)) * 100
+        # Subtract metabolized BAC (metabolism rate is percentage per hour)
+        metabolized_bac = BAC_METABOLISM_RATE * total_hours_elapsed
+        bac = max(0, bac - metabolized_bac)
 
         return round(min(bac, BAC_DISPLAY_CAP), BAC_DECIMAL_PRECISION)
 

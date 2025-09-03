@@ -150,18 +150,18 @@ def bac_chart(guest_id):
             alcohol_grams = drink.abv * drink.volume_ml * ETHANOL_DENSITY_G_PER_ML / 100
             total_alcohol_grams += alcohol_grams
 
+        # Calculate BAC from total alcohol consumed (Widmark formula uses grams)
+        weight_grams = guest.weight * LBS_TO_KG_CONVERSION * 1000
+        bac = (total_alcohol_grams / (weight_grams * AVERAGE_GENDER_CONSTANT)) * 100
+
         # Find the earliest consumption time before this timestamp
         earliest_consumption = min(relevant_consumptions, key=lambda c: c.timestamp)
         total_hours_elapsed = (timestamp - earliest_consumption.timestamp).total_seconds() / 3600
 
-        # Apply metabolism: subtract metabolized alcohol from total
-        # Metabolism rate is grams of alcohol per hour per kg of body weight
-        weight_kg = guest.weight * LBS_TO_KG_CONVERSION
-        metabolized_grams = BAC_METABOLISM_RATE * total_hours_elapsed * weight_kg
-        remaining_alcohol_grams = max(0, total_alcohol_grams - metabolized_grams)
+        # Apply metabolism: BAC decreases by ~0.015% per hour
+        metabolized_bac = BAC_METABOLISM_RATE * total_hours_elapsed
+        bac = max(0, bac - metabolized_bac)
 
-        # BAC = (remaining alcohol in grams / (weight in kg * gender constant)) * 100
-        bac = (remaining_alcohol_grams / (weight_kg * AVERAGE_GENDER_CONSTANT)) * 100
         bac_values.append(round(min(bac, BAC_DISPLAY_CAP), BAC_DECIMAL_PRECISION))
     
     # Create Plotly figure
@@ -312,18 +312,18 @@ def group_bac_chart():
                     alcohol_grams = drink.abv * drink.volume_ml * ETHANOL_DENSITY_G_PER_ML / 100
                     total_alcohol_grams += alcohol_grams
 
+                # Calculate BAC from total alcohol consumed (Widmark formula uses grams)
+                weight_grams = guest.weight * LBS_TO_KG_CONVERSION * 1000
+                bac = (total_alcohol_grams / (weight_grams * AVERAGE_GENDER_CONSTANT)) * 100
+
                 # Find the earliest consumption time before this timestamp
                 earliest_consumption = min(relevant_consumptions, key=lambda c: c.timestamp)
                 total_hours_elapsed = (timestamp - earliest_consumption.timestamp).total_seconds() / 3600
 
-                # Apply metabolism: subtract metabolized alcohol from total
-                # Metabolism rate is grams of alcohol per hour per kg of body weight
-                weight_kg = guest.weight * LBS_TO_KG_CONVERSION
-                metabolized_grams = BAC_METABOLISM_RATE * total_hours_elapsed * weight_kg
-                remaining_alcohol_grams = max(0, total_alcohol_grams - metabolized_grams)
+                # Apply metabolism: BAC decreases by ~0.015% per hour
+                metabolized_bac = BAC_METABOLISM_RATE * total_hours_elapsed
+                bac = max(0, bac - metabolized_bac)
 
-                # BAC = (remaining alcohol in grams / (weight in kg * gender constant)) * 100
-                bac = (remaining_alcohol_grams / (weight_kg * AVERAGE_GENDER_CONSTANT)) * 100
                 bac_values.append(round(min(bac, BAC_DISPLAY_CAP), BAC_DECIMAL_PRECISION))
             
             # Add line for this guest
