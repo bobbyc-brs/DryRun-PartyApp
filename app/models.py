@@ -86,7 +86,7 @@ class Guest(db.Model):
 
         # Calculate total alcohol consumed
         total_alcohol_grams = 0
-        current_time = datetime.now()
+        current_time = datetime.utcnow()  # Use UTC to match chart calculations
 
         for consumption in self.drinks:
             drink = consumption.drink
