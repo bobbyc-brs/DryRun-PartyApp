@@ -179,7 +179,7 @@ For inquiries, contact: Info@BrighterSight.ca
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Save Weight</button>
+                        <button type="submit" class="btn btn-primary" id="save-weight-btn">Save Weight</button>
                     </div>
                 </form>
             </div>
@@ -192,6 +192,46 @@ For inquiries, contact: Info@BrighterSight.ca
         document.addEventListener('DOMContentLoaded', function() {
             // Load BAC chart on page load
             loadBACChart();
+
+            // Handle weight form submission
+            const weightForm = document.getElementById('weight-form');
+            if (weightForm) {
+                weightForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+
+                    const formData = new FormData(this);
+                    const saveBtn = document.getElementById('save-weight-btn');
+                    const originalText = saveBtn.textContent;
+
+                    // Show loading state
+                    saveBtn.textContent = 'Saving...';
+                    saveBtn.disabled = true;
+
+                    fetch(window.location.href, {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            // Close modal
+                            const modal = bootstrap.Modal.getInstance(document.getElementById('weightModal'));
+                            modal.hide();
+
+                            // Reload page to show updated weight and refresh BAC chart
+                            window.location.reload();
+                        } else {
+                            throw new Error('Failed to save weight');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error saving weight:', error);
+                        alert('Error saving weight. Please try again.');
+                        saveBtn.textContent = originalText;
+                        saveBtn.disabled = false;
+                    });
+                });
+            }
+
             // Add event listeners to all drink buttons
             const addDrinkButtons = document.querySelectorAll('.add-drink-btn');
             addDrinkButtons.forEach(button => {
@@ -285,18 +325,41 @@ For inquiries, contact: Info@BrighterSight.ca
                 fetch(`/host/bac_chart/{{ guest.id }}`)
                     .then(response => {
                         if (!response.ok) {
+                            // Handle specific error cases
+                            if (response.status === 400) {
+                                return response.json().then(errorData => {
+                                    if (errorData.error === "Guest weight not set") {
+                                        chartDiv.innerHTML = `
+                                            <div class="text-center text-muted">
+                                                <p>Weight not set</p>
+                                                <small>Set your weight below to see BAC estimates</small>
+                                            </div>
+                                        `;
+                                        return; // Don't throw error, we handled it
+                                    }
+                                    throw new Error(errorData.error || 'Bad request');
+                                });
+                            }
                             throw new Error(`HTTP error! status: ${response.status}`);
                         }
                         return response.json();
                     })
                     .then(data => {
-                        // The BAC chart endpoint returns a Plotly JSON string directly
-                        if (data && typeof data === 'object') {
+                        // Only process if we got valid chart data (not an error case)
+                        if (data && typeof data === 'object' && data.data && data.layout) {
                             // Render the Plotly chart
                             Plotly.newPlot(chartDiv, data.data, data.layout, {
                                 responsive: true,
                                 displayModeBar: false
                             });
+                        } else if (data && data.error) {
+                            // Handle other error cases
+                            chartDiv.innerHTML = `
+                                <div class="text-center text-muted">
+                                    <p>No BAC data available</p>
+                                    <small>${data.error}</small>
+                                </div>
+                            `;
                         } else {
                             throw new Error('Invalid chart data');
                         }
@@ -305,8 +368,8 @@ For inquiries, contact: Info@BrighterSight.ca
                         console.error('Error loading BAC chart:', error);
                         chartDiv.innerHTML = `
                             <div class="text-center text-muted">
-                                <p>No BAC data available</p>
-                                <small>Add drinks and set your weight to see BAC estimates</small>
+                                <p>Unable to load BAC chart</p>
+                                <small>Please refresh the page</small>
                             </div>
                         `;
                     });
