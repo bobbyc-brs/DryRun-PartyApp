@@ -83,7 +83,7 @@ For inquiries, contact: Info@BrighterSight.ca
                         <h2 class="h5 mb-0">Your BAC Estimate</h2>
                     </div>
                     <div class="card-body">
-                        <div id="bac-chart" class="chart-container" style="height: 300px;">
+                        <div id="bac-chart" class="chart-container" style="height: 250px;">
                             <p class="text-center text-muted">Loading BAC chart...</p>
                         </div>
                     </div>
@@ -283,25 +283,30 @@ For inquiries, contact: Info@BrighterSight.ca
                 const chartDiv = document.getElementById('bac-chart');
 
                 fetch(`/host/bac_chart/{{ guest.id }}`)
-                    .then(response => response.json())
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
                     .then(data => {
-                        if (data.success && data.chart_html) {
-                            chartDiv.innerHTML = data.chart_html;
+                        // The BAC chart endpoint returns a Plotly JSON string directly
+                        if (data && typeof data === 'object') {
+                            // Render the Plotly chart
+                            Plotly.newPlot(chartDiv, data.data, data.layout, {
+                                responsive: true,
+                                displayModeBar: false
+                            });
                         } else {
-                            chartDiv.innerHTML = `
-                                <div class="text-center text-muted">
-                                    <p>No BAC data available</p>
-                                    <small>Add drinks and set your weight to see BAC estimates</small>
-                                </div>
-                            `;
+                            throw new Error('Invalid chart data');
                         }
                     })
                     .catch(error => {
                         console.error('Error loading BAC chart:', error);
                         chartDiv.innerHTML = `
                             <div class="text-center text-muted">
-                                <p>Unable to load BAC chart</p>
-                                <small>Please refresh the page</small>
+                                <p>No BAC data available</p>
+                                <small>Add drinks and set your weight to see BAC estimates</small>
                             </div>
                         `;
                     });
