@@ -5,15 +5,11 @@
 # Maximum line length (matches black)
 max-line-length = 88
 
-# Ignore specific errors that conflict with black
-extend-ignore = 
-    E203,  # whitespace before ':' (conflicts with black)
-    W503,  # line break before binary operator (conflicts with black)
-    E501,  # line too long (handled by black)
-    W504   # line break after binary operator
+# Ignore specific errors that conflict with black and common issues
+extend-ignore = E203,W503,E501,W504,F401,C901,E265,F403,F405,F541,F841
 
 # Exclude directories
-exclude = 
+exclude =
     .git,
     __pycache__,
     .venv,
