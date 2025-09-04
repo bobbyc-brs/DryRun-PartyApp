@@ -158,7 +158,7 @@ def bac_chart(guest_id):
         earliest_consumption = min(relevant_consumptions, key=lambda c: c.timestamp)
         total_hours_elapsed = (timestamp - earliest_consumption.timestamp).total_seconds() / 3600
 
-        # Apply metabolism: BAC decreases by ~0.015% per hour
+        # Apply metabolism: BAC decreases at a relatively constant rate (~0.015% per hour)
         metabolized_bac = BAC_METABOLISM_RATE * total_hours_elapsed
         bac = max(0, bac - metabolized_bac)
 
@@ -320,7 +320,7 @@ def group_bac_chart():
                 earliest_consumption = min(relevant_consumptions, key=lambda c: c.timestamp)
                 total_hours_elapsed = (timestamp - earliest_consumption.timestamp).total_seconds() / 3600
 
-                # Apply metabolism: BAC decreases by ~0.015% per hour
+                # Apply metabolism: BAC decreases at a relatively constant rate (~0.015% per hour)
                 metabolized_bac = BAC_METABOLISM_RATE * total_hours_elapsed
                 bac = max(0, bac - metabolized_bac)
 

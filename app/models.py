@@ -97,12 +97,13 @@ class Guest(db.Model):
         # Calculate BAC from total alcohol consumed
         bac = (total_alcohol_grams / (weight_grams * gender_constant)) * 100
 
-        # Apply metabolism: BAC decreases by ~0.015% per hour
+        # Apply metabolism: BAC decreases at a relatively constant rate
         # Find the earliest consumption time to calculate total elapsed time
         earliest_consumption = min(self.drinks, key=lambda c: c.timestamp)
         total_hours_elapsed = (current_time - earliest_consumption.timestamp).total_seconds() / 3600
 
-        # Subtract metabolized BAC (metabolism rate is percentage per hour)
+        # Metabolism rate is approximately 0.015% BAC per hour for most people
+        # This rate is relatively constant regardless of body weight (since BAC is normalized)
         metabolized_bac = BAC_METABOLISM_RATE * total_hours_elapsed
         bac = max(0, bac - metabolized_bac)
 
