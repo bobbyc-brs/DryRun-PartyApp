@@ -345,19 +345,31 @@ For inquiries, contact: Info@BrighterSight.ca
                         return response.json();
                     })
                     .then(data => {
+                        // The BAC chart endpoint returns a JSON string, not a parsed object
+                        let chartData;
+                        if (typeof data === 'string') {
+                            try {
+                                chartData = JSON.parse(data);
+                            } catch (e) {
+                                throw new Error('Invalid JSON response');
+                            }
+                        } else {
+                            chartData = data;
+                        }
+
                         // Only process if we got valid chart data (not an error case)
-                        if (data && typeof data === 'object' && data.data && data.layout) {
+                        if (chartData && typeof chartData === 'object' && chartData.data && chartData.layout) {
                             // Render the Plotly chart
-                            Plotly.newPlot(chartDiv, data.data, data.layout, {
+                            Plotly.newPlot(chartDiv, chartData.data, chartData.layout, {
                                 responsive: true,
                                 displayModeBar: false
                             });
-                        } else if (data && data.error) {
+                        } else if (chartData && chartData.error) {
                             // Handle other error cases
                             chartDiv.innerHTML = `
                                 <div class="text-center text-muted">
                                     <p>No BAC data available</p>
-                                    <small>${data.error}</small>
+                                    <small>${chartData.error}</small>
                                 </div>
                             `;
                         } else {
