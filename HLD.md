@@ -354,6 +354,114 @@ graph TB
     DS --> DF
 ```
 
+## Testing and Quality Assurance
+
+The application implements a comprehensive testing strategy to ensure code quality, scientific accuracy, and reliable functionality.
+
+### Test Architecture
+
+```mermaid
+graph TB
+    subgraph "Test Categories"
+        TM[Test Models]
+        TR[Test Routes]
+        TB[Test BAC Calculations]
+        TC[Test Constants]
+        TA[Test App]
+    end
+
+    subgraph "Test Infrastructure"
+        TF[Test Fixtures]
+        TU[Test Utilities]
+        TCOV[Test Coverage]
+        TCI[CI/CD Integration]
+    end
+
+    subgraph "Test Tools"
+        PYT[pytest]
+        PCOV[pytest-cov]
+        PFLASK[pytest-flask]
+        PMOCK[pytest-mock]
+    end
+
+    TM --> TF
+    TR --> TF
+    TB --> TF
+    TC --> TF
+    TA --> TF
+
+    TF --> TU
+    TU --> TCOV
+    TCOV --> TCI
+
+    PYT --> TM
+    PCOV --> TCOV
+    PFLASK --> TR
+    PMOCK --> TU
+```
+
+### Test Coverage Areas
+
+#### Model Layer Tests (`tests/test_models/`)
+- **Guest Model**: Creation, validation, BAC calculation
+- **Drink Model**: Alcohol content calculations, metadata validation
+- **DrinkConsumption Model**: Timestamp handling, relationships
+- **Database Relationships**: Foreign key constraints, cascading deletes
+
+#### Route Layer Tests (`tests/test_routes/`)
+- **Guest Routes**: Interface rendering, form submissions, data validation
+- **Host Routes**: API endpoints, chart generation, error handling
+- **HTTP Methods**: GET/POST request handling, status codes
+- **Template Rendering**: HTML generation, context passing
+
+#### BAC Calculation Tests (`tests/test_bac_calculation/`)
+- **Scientific Accuracy**: Widmark formula implementation validation
+- **Metabolism Modeling**: Time-based alcohol elimination
+- **Real-world Scenarios**: Multi-drink consumption patterns
+- **Edge Cases**: Extreme values, boundary conditions
+
+#### Constants Validation (`tests/test_constants/`)
+- **Scientific Constants**: Ethanol density, gender factors
+- **Unit Conversions**: Weight/volume calculations
+- **Configuration Values**: Port numbers, display limits
+
+#### Application Tests (`tests/test_app/`)
+- **Flask Configuration**: App factory pattern, blueprint registration
+- **Database Integration**: Connection handling, session management
+- **Error Handling**: Exception catching, graceful degradation
+
+### Test Quality Metrics
+
+- **Coverage Target**: 80% minimum code coverage
+- **Test Categories**: Unit tests, integration tests, scientific validation
+- **Automated Execution**: pytest framework with markers and fixtures
+- **CI/CD Integration**: Automated testing in deployment pipeline
+
+### Test Execution Methods
+
+```bash
+# Run complete test suite
+python run_tests.py
+
+# Run with coverage reporting
+pytest --cov=app --cov-report=html
+
+# Run specific test categories
+pytest -m "models and unit"
+pytest -m "bac and scientific"
+
+# Run individual test files
+pytest tests/test_bac_calculation/test_bac_logic.py
+```
+
+### Scientific Validation
+
+The BAC calculation tests include scientific validation of:
+- **Widmark Formula**: `BAC = (alcohol_grams / (weight_grams * r)) * 100`
+- **Metabolism Rate**: 0.015% BAC decrease per hour
+- **Alcohol Content**: Density-based volume to mass conversion
+- **Time-based Calculations**: Proper timestamp handling and intervals
+
 ## Technology Stack
 
 - **Backend**: Python 3.12, Flask 2.3.3, SQLAlchemy
@@ -361,6 +469,7 @@ graph TB
 - **Charts**: Plotly.js
 - **Database**: SQLite (development), PostgreSQL/MySQL (production)
 - **Image Processing**: Pillow (PIL)
+- **Testing**: pytest, pytest-cov, pytest-flask, pytest-mock
 - **Deployment**: Gunicorn, Nginx (production)
 
 ## Future Enhancements
