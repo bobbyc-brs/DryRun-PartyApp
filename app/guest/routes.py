@@ -129,6 +129,67 @@ def select_guest(guest_id):
 
     return render_template('guest/select.html', guest=guest, drinks=drinks, drink_history=drink_history)
 
+@guest_bp.route('/add_guest', methods=['POST'])
+def add_guest():
+    """
+    API endpoint to add a new guest to the system.
+
+    This route allows creating new guests through the web interface.
+    The guest will be added to the database and will appear in the guest list.
+
+    Expected JSON payload:
+        - name (str): The name of the new guest (required)
+        - weight (float, optional): The weight of the guest in lbs
+
+    Returns:
+        JSON: Success/error response with guest information.
+    """
+    try:
+        data = request.get_json()
+        if not data or 'name' not in data:
+            return jsonify({'success': False, 'error': 'Guest name is required'}), 400
+
+        name = data['name'].strip()
+        if not name:
+            return jsonify({'success': False, 'error': 'Guest name cannot be empty'}), 400
+
+        # Check if guest already exists
+        existing_guest = Guest.query.filter_by(name=name).first()
+        if existing_guest:
+            return jsonify({'success': False, 'error': f'Guest "{name}" already exists'}), 400
+
+        # Create new guest
+        weight = data.get('weight')
+        if weight is not None:
+            try:
+                weight = float(weight)
+                if weight <= 0:
+                    return jsonify({'success': False, 'error': 'Weight must be positive'}), 400
+            except (ValueError, TypeError):
+                return jsonify({'success': False, 'error': 'Invalid weight format'}), 400
+
+        new_guest = Guest(name=name)
+        if weight is not None:
+            new_guest.weight = weight
+
+        db.session.add(new_guest)
+        db.session.commit()
+
+        return jsonify({
+            'success': True,
+            'message': f'Successfully added guest "{name}"',
+            'guest': {
+                'id': new_guest.id,
+                'name': new_guest.name,
+                'weight': new_guest.weight
+            }
+        })
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
 @guest_bp.route('/add_drink', methods=['POST'])
 def add_drink():
     """

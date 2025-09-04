@@ -23,17 +23,13 @@ This file tracks planned improvements and future features for the Party Drink Tr
 ## Future Improvements
 
 ### High Priority
-- [x] Fix chart display issues in host dashboard
-- [x] Move the Status Pop-Ups for each drink to bottom of page
-- [ ] Fix time display: Convert UTC timestamps to local time for better user experience
 - [ ] Add ability to create/add new users through the interface
+- [ ] If connected to 'localhost' as a guest, show everybody's name.  If connected via a different I.P address, log the address and default to the same person. With the option of changing.
 - [ ] Allow setting guest weights during initial setup
-- [x] Refactor magic numbers into constants (e.g., BAC calculation parameters, alcohol density)
-  - [x] Created app/constants.py with documented constants
-  - [x] Updated models.py to use constants
-  - [ ] Update remaining files to use constants
+- [ ] Update remaining files to use constants
 - [ ] Move project init/setup files to their own directory
 - [ ] Get images from `https://github.com/bobbyc-brs/Test2-PartyApp/tree/main/drinks`
+
 
 ### Medium Priority
 - [ ] Improve mobile responsiveness of both interfaces
@@ -67,3 +63,9 @@ This file tracks planned improvements and future features for the Party Drink Tr
 - [x] Implement placeholder image generation for drinks
 - [x] Add root route redirects to fix 404 errors
 - [x] Fix empty chart error in host dashboard
+- [x] Fix chart display issues in host dashboard
+- [x] Move the Status Pop-Ups for each drink to bottom of page
+- [x] Fix time display: Convert UTC timestamps to local time for better user experience
+- [x] Refactor magic numbers into constants (e.g., BAC calculation parameters, alcohol density)
+  - [x] Created app/constants.py with documented constants
+  - [x] Updated models.py to use constants

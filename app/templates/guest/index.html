@@ -33,7 +33,38 @@ For inquiries, contact: Info@BrighterSight.ca
                 <p class="lead">Select your name to start tracking your drinks</p>
             </div>
         </div>
-        
+
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <h2 class="h4 mb-0">Add New Guest</h2>
+                    </div>
+                    <div class="card-body">
+                        <form id="add-guest-form">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="guest-name" class="form-label">Guest Name *</label>
+                                    <input type="text" class="form-control" id="guest-name" name="name" required
+                                           placeholder="Enter guest name" maxlength="50">
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="guest-weight" class="form-label">Weight (lbs)</label>
+                                    <input type="number" class="form-control" id="guest-weight" name="weight"
+                                           placeholder="Optional" min="50" max="500" step="0.1">
+                                </div>
+                                <div class="col-md-2 mb-3 d-flex align-items-end">
+                                    <button type="submit" class="btn btn-success w-100" id="add-guest-btn">
+                                        Add Guest
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="row mb-5">
             <div class="col-12">
                 <div class="card">
@@ -80,5 +111,105 @@ For inquiries, contact: Info@BrighterSight.ca
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Handle add guest form submission
+            const addGuestForm = document.getElementById('add-guest-form');
+            const addGuestBtn = document.getElementById('add-guest-btn');
+            const guestNameInput = document.getElementById('guest-name');
+            const guestWeightInput = document.getElementById('guest-weight');
+
+            addGuestForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                addGuest();
+            });
+
+            function addGuest() {
+                const name = guestNameInput.value.trim();
+                const weight = guestWeightInput.value.trim();
+
+                if (!name) {
+                    showAlert('Please enter a guest name', 'danger');
+                    return;
+                }
+
+                const requestData = {
+                    name: name
+                };
+
+                if (weight) {
+                    const weightNum = parseFloat(weight);
+                    if (isNaN(weightNum) || weightNum <= 0) {
+                        showAlert('Please enter a valid weight', 'danger');
+                        return;
+                    }
+                    requestData.weight = weightNum;
+                }
+
+                // Disable button during submission
+                addGuestBtn.disabled = true;
+                addGuestBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Adding...';
+
+                fetch('/guest/add_guest', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestData)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showAlert(data.message, 'success');
+                        // Clear form
+                        guestNameInput.value = '';
+                        guestWeightInput.value = '';
+                        // Reload page to show new guest
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1500);
+                    } else {
+                        showAlert(data.error || 'Failed to add guest', 'danger');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showAlert('An error occurred while adding the guest', 'danger');
+                })
+                .finally(() => {
+                    // Re-enable button
+                    addGuestBtn.disabled = false;
+                    addGuestBtn.innerHTML = 'Add Guest';
+                });
+            }
+
+            function showAlert(message, type) {
+                // Remove existing alerts
+                const existingAlerts = document.querySelectorAll('.alert');
+                existingAlerts.forEach(alert => alert.remove());
+
+                // Create new alert
+                const alertDiv = document.createElement('div');
+                alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+                alertDiv.setAttribute('role', 'alert');
+                alertDiv.innerHTML = `
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                `;
+
+                // Insert at top of container
+                const container = document.querySelector('.container');
+                container.insertBefore(alertDiv, container.firstChild);
+
+                // Auto-dismiss after 5 seconds
+                setTimeout(() => {
+                    if (alertDiv.parentNode) {
+                        alertDiv.classList.remove('show');
+                        setTimeout(() => alertDiv.remove(), 150);
+                    }
+                }, 5000);
+            }
+        });
+    </script>
 </body>
 </html>

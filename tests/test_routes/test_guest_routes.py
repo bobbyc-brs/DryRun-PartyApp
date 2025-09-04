@@ -361,3 +361,177 @@ class TestGuestRouteTimezone:
 
         # Should contain multiple drinks
         assert response.data.count(sample_drink.name.encode()) >= 3
+
+
+class TestGuestAddGuest:
+    """Test add guest functionality."""
+
+    @pytest.mark.routes
+    def test_add_guest_success(self, client):
+        """Test successfully adding a new guest."""
+        data = {
+            'name': 'Test Guest'
+        }
+
+        response = client.post('/guest/add_guest',
+                             json=data)
+
+        assert response.status_code == 200
+        response_data = response.get_json()
+
+        assert response_data['success'] is True
+        assert 'Test Guest' in response_data['message']
+        assert response_data['guest']['name'] == 'Test Guest'
+        assert response_data['guest']['id'] is not None
+
+    @pytest.mark.routes
+    def test_add_guest_with_weight(self, client):
+        """Test adding a guest with weight."""
+        data = {
+            'name': 'Weighted Guest',
+            'weight': 180
+        }
+
+        response = client.post('/guest/add_guest',
+                             json=data)
+
+        assert response.status_code == 200
+        response_data = response.get_json()
+
+        assert response_data['success'] is True
+        assert response_data['guest']['name'] == 'Weighted Guest'
+        assert response_data['guest']['weight'] == 180
+
+    @pytest.mark.routes
+    def test_add_guest_duplicate_name(self, client, sample_guest):
+        """Test adding a guest with duplicate name fails."""
+        data = {
+            'name': sample_guest.name  # This already exists
+        }
+
+        response = client.post('/guest/add_guest',
+                             json=data)
+
+        assert response.status_code == 400
+        response_data = response.get_json()
+
+        assert response_data['success'] is False
+        assert 'already exists' in response_data['error']
+
+    @pytest.mark.routes
+    def test_add_guest_empty_name(self, client):
+        """Test adding a guest with empty name fails."""
+        data = {
+            'name': ''
+        }
+
+        response = client.post('/guest/add_guest',
+                             json=data)
+
+        assert response.status_code == 400
+        response_data = response.get_json()
+
+        assert response_data['success'] is False
+        assert 'cannot be empty' in response_data['error']
+
+    @pytest.mark.routes
+    def test_add_guest_no_name(self, client):
+        """Test adding a guest without name fails."""
+        data = {}  # No name field
+
+        response = client.post('/guest/add_guest',
+                             json=data)
+
+        assert response.status_code == 400
+        response_data = response.get_json()
+
+        assert response_data['success'] is False
+        assert 'required' in response_data['error']
+
+    @pytest.mark.routes
+    def test_add_guest_invalid_weight(self, client):
+        """Test adding a guest with invalid weight fails."""
+        data = {
+            'name': 'Invalid Weight Guest',
+            'weight': -50
+        }
+
+        response = client.post('/guest/add_guest',
+                             json=data)
+
+        assert response.status_code == 400
+        response_data = response.get_json()
+
+        assert response_data['success'] is False
+        assert 'positive' in response_data['error']
+
+    @pytest.mark.routes
+    def test_add_guest_zero_weight(self, client):
+        """Test adding a guest with zero weight fails."""
+        data = {
+            'name': 'Zero Weight Guest',
+            'weight': 0
+        }
+
+        response = client.post('/guest/add_guest',
+                             json=data)
+
+        assert response.status_code == 400
+        response_data = response.get_json()
+
+        assert response_data['success'] is False
+        assert 'positive' in response_data['error']
+
+    @pytest.mark.routes
+    def test_add_guest_large_weight(self, client):
+        """Test adding a guest with valid large weight succeeds."""
+        data = {
+            'name': 'Large Guest',
+            'weight': 450  # Within valid range
+        }
+
+        response = client.post('/guest/add_guest',
+                             json=data)
+
+        assert response.status_code == 200
+        response_data = response.get_json()
+
+        assert response_data['success'] is True
+        assert response_data['guest']['weight'] == 450
+
+    @pytest.mark.routes
+    def test_add_guest_database_persistence(self, client):
+        """Test that added guest persists in database."""
+        data = {
+            'name': 'Persistent Guest'
+        }
+
+        # Add guest
+        response = client.post('/guest/add_guest',
+                             json=data)
+
+        assert response.status_code == 200
+
+        # Check that guest exists in database by trying to add again (should fail)
+        response2 = client.post('/guest/add_guest',
+                              json=data)
+
+        assert response2.status_code == 400
+        response_data = response2.get_json()
+        assert 'already exists' in response_data['error']
+
+    @pytest.mark.routes
+    def test_add_guest_long_name(self, client):
+        """Test adding a guest with a very long name."""
+        long_name = 'A' * 100  # Very long name
+        data = {
+            'name': long_name
+        }
+
+        response = client.post('/guest/add_guest',
+                             json=data)
+
+        # Should succeed since we don't have a strict length limit
+        assert response.status_code == 200
+        response_data = response.get_json()
+        assert response_data['success'] is True
