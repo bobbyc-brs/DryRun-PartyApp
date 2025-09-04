@@ -25,6 +25,7 @@ For inquiries, contact: Info@BrighterSight.ca
 
 from flask import Blueprint, render_template, jsonify
 from app.models import Guest, DrinkConsumption, Drink
+from app import format_local_time
 from app.constants import (
     ETHANOL_DENSITY_G_PER_ML,
     LBS_TO_KG_CONVERSION,
@@ -164,10 +165,8 @@ def bac_chart(guest_id):
 
         bac_values.append(round(min(bac, BAC_DISPLAY_CAP), BAC_DECIMAL_PRECISION))
     
-    # Create Plotly figure
+        # Create Plotly figure
     fig = go.Figure()
-    
-    from app import format_local_time
 
     # Add BAC line
     fig.add_trace(go.Scatter(
