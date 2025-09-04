@@ -18,17 +18,19 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 For inquiries, contact: Info@BrighterSight.ca
 """
 
-import pytest
 import math
 from datetime import datetime, timedelta
-from app.models import Guest, Drink, DrinkConsumption
+
+import pytest
+
 from app.constants import (
-    ETHANOL_DENSITY_G_PER_ML,
     AVERAGE_GENDER_CONSTANT,
-    BAC_METABOLISM_RATE,
     BAC_DISPLAY_CAP,
-    LBS_TO_KG_CONVERSION
+    BAC_METABOLISM_RATE,
+    ETHANOL_DENSITY_G_PER_ML,
+    LBS_TO_KG_CONVERSION,
 )
+from app.models import Drink, DrinkConsumption, Guest
 
 
 class TestBACScientificAccuracy:
@@ -43,16 +45,18 @@ class TestBACScientificAccuracy:
         db_session.commit()
 
         # Create a drink with known alcohol content
-        drink = Drink(name="Test Drink", abv=10.0, volume_ml=200,
-                     image_path="images/drinks/test.png")
+        drink = Drink(
+            name="Test Drink",
+            abv=10.0,
+            volume_ml=200,
+            image_path="images/drinks/test.png",
+        )
         db_session.add(drink)
         db_session.commit()
 
         # Add consumption
         consumption = DrinkConsumption(
-            guest_id=guest.id,
-            drink_id=drink.id,
-            timestamp=datetime.utcnow()
+            guest_id=guest.id, drink_id=drink.id, timestamp=datetime.utcnow()
         )
         db_session.add(consumption)
         db_session.commit()
@@ -74,11 +78,11 @@ class TestBACScientificAccuracy:
         """Test alcohol content calculation from ABV and volume."""
         test_cases = [
             # (ABV, volume_ml, expected_alcohol_grams)
-            (5.0, 355, 13.99775),   # Standard beer
-            (12.0, 150, 14.223),    # Standard wine glass
-            (40.0, 45, 14.301),     # Standard whiskey shot
-            (0.0, 355, 0.0),        # Non-alcoholic
-            (95.0, 30, 22.635),     # High-proof spirit
+            (5.0, 355, 13.99775),  # Standard beer
+            (12.0, 150, 14.223),  # Standard wine glass
+            (40.0, 45, 14.301),  # Standard whiskey shot
+            (0.0, 355, 0.0),  # Non-alcoholic
+            (95.0, 30, 22.635),  # High-proof spirit
         ]
 
         for abv, volume_ml, expected in test_cases:
@@ -89,9 +93,9 @@ class TestBACScientificAccuracy:
     def test_weight_conversion_accuracy(self):
         """Test weight conversion from pounds to grams."""
         test_weights = [
-            (100, 45359.2),   # 100 lbs
-            (150, 68038.8),   # 150 lbs
-            (200, 90718.4),   # 200 lbs
+            (100, 45359.2),  # 100 lbs
+            (150, 68038.8),  # 150 lbs
+            (200, 90718.4),  # 200 lbs
             (250, 113398.0),  # 250 lbs
         ]
 
@@ -103,7 +107,7 @@ class TestBACScientificAccuracy:
     def test_gender_constants(self):
         """Test that gender constants are within expected ranges."""
         # Male constant should be higher than female (less body water percentage)
-        from app.constants import MALE_GENDER_CONSTANT, FEMALE_GENDER_CONSTANT
+        from app.constants import FEMALE_GENDER_CONSTANT, MALE_GENDER_CONSTANT
 
         assert MALE_GENDER_CONSTANT > FEMALE_GENDER_CONSTANT
         assert AVERAGE_GENDER_CONSTANT > FEMALE_GENDER_CONSTANT
@@ -122,8 +126,12 @@ class TestBACMetabolism:
     def test_metabolism_rate(self, db_session):
         """Test that metabolism follows expected rate."""
         guest = Guest(name="Metabolism Test", weight=150)
-        drink = Drink(name="Test Drink", abv=10.0, volume_ml=200,
-                     image_path="images/drinks/test.png")
+        drink = Drink(
+            name="Test Drink",
+            abv=10.0,
+            volume_ml=200,
+            image_path="images/drinks/test.png",
+        )
         db_session.add_all([guest, drink])
         db_session.commit()
 
@@ -131,7 +139,7 @@ class TestBACMetabolism:
         consumption = DrinkConsumption(
             guest_id=guest.id,
             drink_id=drink.id,
-            timestamp=datetime.utcnow() - timedelta(hours=2)
+            timestamp=datetime.utcnow() - timedelta(hours=2),
         )
         db_session.add(consumption)
         db_session.commit()
@@ -151,8 +159,12 @@ class TestBACMetabolism:
     def test_no_metabolism_recent_drink(self, db_session):
         """Test BAC with very recent consumption (minimal metabolism)."""
         guest = Guest(name="Recent Drink", weight=150)
-        drink = Drink(name="Test Drink", abv=5.0, volume_ml=355,
-                     image_path="images/drinks/test.png")
+        drink = Drink(
+            name="Test Drink",
+            abv=5.0,
+            volume_ml=355,
+            image_path="images/drinks/test.png",
+        )
         db_session.add_all([guest, drink])
         db_session.commit()
 
@@ -160,7 +172,7 @@ class TestBACMetabolism:
         consumption = DrinkConsumption(
             guest_id=guest.id,
             drink_id=drink.id,
-            timestamp=datetime.utcnow() - timedelta(minutes=5)
+            timestamp=datetime.utcnow() - timedelta(minutes=5),
         )
         db_session.add(consumption)
         db_session.commit()
@@ -172,7 +184,7 @@ class TestBACMetabolism:
         weight_grams = guest.weight * LBS_TO_KG_CONVERSION * 1000
         expected_bac = (alcohol_grams / (weight_grams * AVERAGE_GENDER_CONSTANT)) * 100
 
-        metabolized = (5/60) * BAC_METABOLISM_RATE  # 5 minutes in hours
+        metabolized = (5 / 60) * BAC_METABOLISM_RATE  # 5 minutes in hours
         expected_bac -= metabolized
 
         assert abs(bac - expected_bac) < 0.001
@@ -181,8 +193,12 @@ class TestBACMetabolism:
     def test_metabolism_over_long_time(self, db_session):
         """Test BAC metabolism over a long period."""
         guest = Guest(name="Long Time", weight=150)
-        drink = Drink(name="Test Drink", abv=10.0, volume_ml=200,
-                     image_path="images/drinks/test.png")
+        drink = Drink(
+            name="Test Drink",
+            abv=10.0,
+            volume_ml=200,
+            image_path="images/drinks/test.png",
+        )
         db_session.add_all([guest, drink])
         db_session.commit()
 
@@ -190,7 +206,7 @@ class TestBACMetabolism:
         consumption = DrinkConsumption(
             guest_id=guest.id,
             drink_id=drink.id,
-            timestamp=datetime.utcnow() - timedelta(hours=6)
+            timestamp=datetime.utcnow() - timedelta(hours=6),
         )
         db_session.add(consumption)
         db_session.commit()
@@ -211,17 +227,19 @@ class TestBACEdgeCases:
     def test_very_light_person_high_alcohol(self, db_session):
         """Test BAC for very light person with high alcohol consumption."""
         guest = Guest(name="Light Drinker", weight=100)  # Very light
-        drink = Drink(name="Strong Drink", abv=40.0, volume_ml=200,
-                     image_path="images/drinks/strong.png")
+        drink = Drink(
+            name="Strong Drink",
+            abv=40.0,
+            volume_ml=200,
+            image_path="images/drinks/strong.png",
+        )
         db_session.add_all([guest, drink])
         db_session.commit()
 
         # Multiple strong drinks
         for _ in range(3):
             consumption = DrinkConsumption(
-                guest_id=guest.id,
-                drink_id=drink.id,
-                timestamp=datetime.utcnow()
+                guest_id=guest.id, drink_id=drink.id, timestamp=datetime.utcnow()
             )
             db_session.add(consumption)
         db_session.commit()
@@ -236,15 +254,17 @@ class TestBACEdgeCases:
     def test_very_heavy_person_small_drink(self, db_session):
         """Test BAC for very heavy person with small drink."""
         guest = Guest(name="Heavy Drinker", weight=300)  # Very heavy
-        drink = Drink(name="Small Drink", abv=5.0, volume_ml=100,
-                     image_path="images/drinks/small.png")
+        drink = Drink(
+            name="Small Drink",
+            abv=5.0,
+            volume_ml=100,
+            image_path="images/drinks/small.png",
+        )
         db_session.add_all([guest, drink])
         db_session.commit()
 
         consumption = DrinkConsumption(
-            guest_id=guest.id,
-            drink_id=drink.id,
-            timestamp=datetime.utcnow()
+            guest_id=guest.id, drink_id=drink.id, timestamp=datetime.utcnow()
         )
         db_session.add(consumption)
         db_session.commit()
@@ -259,15 +279,14 @@ class TestBACEdgeCases:
     def test_zero_alcohol_drink(self, db_session):
         """Test BAC with zero alcohol drink."""
         guest = Guest(name="Non-Drinker", weight=150)
-        drink = Drink(name="Water", abv=0.0, volume_ml=500,
-                     image_path="images/drinks/water.png")
+        drink = Drink(
+            name="Water", abv=0.0, volume_ml=500, image_path="images/drinks/water.png"
+        )
         db_session.add_all([guest, drink])
         db_session.commit()
 
         consumption = DrinkConsumption(
-            guest_id=guest.id,
-            drink_id=drink.id,
-            timestamp=datetime.utcnow()
+            guest_id=guest.id, drink_id=drink.id, timestamp=datetime.utcnow()
         )
         db_session.add(consumption)
         db_session.commit()
@@ -283,21 +302,27 @@ class TestBACEdgeCases:
         guest = Guest(name="Extreme Test", weight=150)
 
         # Test very high ABV
-        high_abv_drink = Drink(name="Extreme ABV", abv=100.0, volume_ml=10,
-                              image_path="images/drinks/extreme.png")
+        high_abv_drink = Drink(
+            name="Extreme ABV",
+            abv=100.0,
+            volume_ml=10,
+            image_path="images/drinks/extreme.png",
+        )
 
         # Test negative ABV (shouldn't happen but test robustness)
-        negative_abv_drink = Drink(name="Negative ABV", abv=-5.0, volume_ml=100,
-                                  image_path="images/drinks/negative.png")
+        negative_abv_drink = Drink(
+            name="Negative ABV",
+            abv=-5.0,
+            volume_ml=100,
+            image_path="images/drinks/negative.png",
+        )
 
         db_session.add_all([guest, high_abv_drink, negative_abv_drink])
         db_session.commit()
 
         # Test high ABV
         consumption1 = DrinkConsumption(
-            guest_id=guest.id,
-            drink_id=high_abv_drink.id,
-            timestamp=datetime.utcnow()
+            guest_id=guest.id, drink_id=high_abv_drink.id, timestamp=datetime.utcnow()
         )
         db_session.add(consumption1)
         db_session.commit()
@@ -309,7 +334,7 @@ class TestBACEdgeCases:
         consumption2 = DrinkConsumption(
             guest_id=guest.id,
             drink_id=negative_abv_drink.id,
-            timestamp=datetime.utcnow()
+            timestamp=datetime.utcnow(),
         )
         db_session.add(consumption2)
         db_session.commit()
@@ -326,8 +351,12 @@ class TestBACRealWorldScenarios:
     def test_typical_beer_drinker(self, db_session):
         """Test typical beer drinking scenario."""
         guest = Guest(name="Beer Drinker", weight=180)  # Average male weight
-        beer = Drink(name="Typical Beer", abv=4.5, volume_ml=355,
-                    image_path="images/drinks/beer.png")
+        beer = Drink(
+            name="Typical Beer",
+            abv=4.5,
+            volume_ml=355,
+            image_path="images/drinks/beer.png",
+        )
         db_session.add_all([guest, beer])
         db_session.commit()
 
@@ -337,7 +366,7 @@ class TestBACRealWorldScenarios:
             consumption = DrinkConsumption(
                 guest_id=guest.id,
                 drink_id=beer.id,
-                timestamp=base_time - timedelta(minutes=i*40)  # One every 40 minutes
+                timestamp=base_time - timedelta(minutes=i * 40),  # One every 40 minutes
             )
             db_session.add(consumption)
         db_session.commit()
@@ -351,8 +380,12 @@ class TestBACRealWorldScenarios:
     def test_wine_drinker_scenario(self, db_session):
         """Test wine drinking scenario."""
         guest = Guest(name="Wine Drinker", weight=140)  # Average female weight
-        wine = Drink(name="Red Wine", abv=13.5, volume_ml=150,
-                    image_path="images/drinks/wine.png")
+        wine = Drink(
+            name="Red Wine",
+            abv=13.5,
+            volume_ml=150,
+            image_path="images/drinks/wine.png",
+        )
         db_session.add_all([guest, wine])
         db_session.commit()
 
@@ -360,12 +393,12 @@ class TestBACRealWorldScenarios:
         consumption1 = DrinkConsumption(
             guest_id=guest.id,
             drink_id=wine.id,
-            timestamp=datetime.utcnow() - timedelta(hours=1.5)
+            timestamp=datetime.utcnow() - timedelta(hours=1.5),
         )
         consumption2 = DrinkConsumption(
             guest_id=guest.id,
             drink_id=wine.id,
-            timestamp=datetime.utcnow() - timedelta(hours=0.75)
+            timestamp=datetime.utcnow() - timedelta(hours=0.75),
         )
         db_session.add_all([consumption1, consumption2])
         db_session.commit()
@@ -380,9 +413,21 @@ class TestBACRealWorldScenarios:
         """Test mixed drinking scenario (beer + wine + cocktail)."""
         guest = Guest(name="Mixed Drinker", weight=160)
         drinks = [
-            Drink(name="Beer", abv=5.0, volume_ml=355, image_path="images/drinks/beer.png"),
-            Drink(name="Wine", abv=12.0, volume_ml=150, image_path="images/drinks/wine.png"),
-            Drink(name="Cocktail", abv=15.0, volume_ml=200, image_path="images/drinks/cocktail.png")
+            Drink(
+                name="Beer", abv=5.0, volume_ml=355, image_path="images/drinks/beer.png"
+            ),
+            Drink(
+                name="Wine",
+                abv=12.0,
+                volume_ml=150,
+                image_path="images/drinks/wine.png",
+            ),
+            Drink(
+                name="Cocktail",
+                abv=15.0,
+                volume_ml=200,
+                image_path="images/drinks/cocktail.png",
+            ),
         ]
 
         db_session.add(guest)
@@ -393,12 +438,21 @@ class TestBACRealWorldScenarios:
         # Drinking pattern: beer, then wine, then cocktail
         base_time = datetime.utcnow()
         consumptions = [
-            DrinkConsumption(guest_id=guest.id, drink_id=drinks[0].id,
-                           timestamp=base_time - timedelta(hours=2)),
-            DrinkConsumption(guest_id=guest.id, drink_id=drinks[1].id,
-                           timestamp=base_time - timedelta(hours=1)),
-            DrinkConsumption(guest_id=guest.id, drink_id=drinks[2].id,
-                           timestamp=base_time - timedelta(minutes=30))
+            DrinkConsumption(
+                guest_id=guest.id,
+                drink_id=drinks[0].id,
+                timestamp=base_time - timedelta(hours=2),
+            ),
+            DrinkConsumption(
+                guest_id=guest.id,
+                drink_id=drinks[1].id,
+                timestamp=base_time - timedelta(hours=1),
+            ),
+            DrinkConsumption(
+                guest_id=guest.id,
+                drink_id=drinks[2].id,
+                timestamp=base_time - timedelta(minutes=30),
+            ),
         ]
 
         for consumption in consumptions:

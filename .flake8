@@ -1,0 +1,48 @@
+# Flake8 configuration for Party Drink Tracker
+# Copyright (C) 2025 Brighter Sight
+
+[flake8]
+# Maximum line length (matches black)
+max-line-length = 88
+
+# Ignore specific errors that conflict with black
+extend-ignore = 
+    E203,  # whitespace before ':' (conflicts with black)
+    W503,  # line break before binary operator (conflicts with black)
+    E501,  # line too long (handled by black)
+    W504   # line break after binary operator
+
+# Exclude directories
+exclude = 
+    .git,
+    __pycache__,
+    .venv,
+    venv,
+    .eggs,
+    *.egg,
+    build,
+    dist,
+    .pytest_cache,
+    .mypy_cache,
+    htmlcov,
+    .coverage,
+    instance,
+    migrations
+
+# Per-file ignores
+per-file-ignores =
+    # Allow unused imports in __init__.py files
+    __init__.py:F401
+    # Allow long lines in test files (for readability)
+    tests/*:E501
+    # Allow unused variables in test files
+    tests/*:F841
+
+# Maximum complexity
+max-complexity = 10
+
+# Import order checking
+import-order-style = google
+
+# Docstring conventions
+docstring-convention = google

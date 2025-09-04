@@ -21,9 +21,10 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 For inquiries, contact: Info@BrighterSight.ca
 """
 
+import os
 import subprocess
 import sys
-import os
+
 
 def run_tests():
     """Run all tests with coverage."""
@@ -32,22 +33,25 @@ def run_tests():
 
     # Install test dependencies if needed
     print("Installing test dependencies...")
-    subprocess.run([
-        sys.executable, "-m", "pip", "install",
-        "-r", "requirements.txt"
-    ], check=True)
+    subprocess.run(
+        [sys.executable, "-m", "pip", "install", "-r", "requirements.txt"], check=True
+    )
 
     # Run tests with coverage
     print("\nRunning tests with coverage...")
-    result = subprocess.run([
-        sys.executable, "-m", "pytest",
-        "--verbose",
-        "--tb=short",
-        "--cov=app",
-        "--cov-report=term-missing",
-        "--cov-report=html:htmlcov",
-        "--cov-fail-under=80"
-    ])
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "pytest",
+            "--verbose",
+            "--tb=short",
+            "--cov=app",
+            "--cov-report=term-missing",
+            "--cov-report=html:htmlcov",
+            "--cov-fail-under=80",
+        ]
+    )
 
     if result.returncode == 0:
         print("\n✅ All tests passed!")
@@ -55,6 +59,7 @@ def run_tests():
     else:
         print("\n❌ Some tests failed!")
         sys.exit(result.returncode)
+
 
 if __name__ == "__main__":
     run_tests()

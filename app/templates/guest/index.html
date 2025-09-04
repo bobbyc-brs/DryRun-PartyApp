@@ -34,37 +34,6 @@ For inquiries, contact: Info@BrighterSight.ca
             </div>
         </div>
 
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header bg-success text-white">
-                        <h2 class="h4 mb-0">Add New Guest</h2>
-                    </div>
-                    <div class="card-body">
-                        <form id="add-guest-form">
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label for="guest-name" class="form-label">Guest Name *</label>
-                                    <input type="text" class="form-control" id="guest-name" name="name" required
-                                           placeholder="Enter guest name" maxlength="50">
-                                </div>
-                                <div class="col-md-4 mb-3">
-                                    <label for="guest-weight" class="form-label">Weight (lbs)</label>
-                                    <input type="number" class="form-control" id="guest-weight" name="weight"
-                                           placeholder="Optional" min="50" max="500" step="0.1">
-                                </div>
-                                <div class="col-md-2 mb-3 d-flex align-items-end">
-                                    <button type="submit" class="btn btn-success w-100" id="add-guest-btn">
-                                        Add Guest
-                                    </button>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <div class="row mb-5">
             <div class="col-12">
                 <div class="card">
@@ -92,7 +61,7 @@ For inquiries, contact: Info@BrighterSight.ca
                             </div>
                             {% else %}
                             <div class="col-12 text-center">
-                                <p>No guests found. Please create a guest-list file in your home directory.</p>
+                                <p>No guests found. Click "Add Guest" below to join the party.</p>
                             </div>
                             {% endfor %}
                         </div>
@@ -100,7 +69,23 @@ For inquiries, contact: Info@BrighterSight.ca
                 </div>
             </div>
         </div>
-        
+
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                        <h2 class="h4 mb-0">Add New Guest</h2>
+                        <button type="button" class="btn btn-light btn-sm" data-bs-toggle="modal" data-bs-target="#addGuestModal">
+                            <i class="bi bi-plus-circle"></i> Add Guest
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted mb-0">Can't find your name? Click "Add Guest" to join the party.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="row">
             <div class="col-12 text-center">
                 <p class="text-muted">
@@ -110,10 +95,44 @@ For inquiries, contact: Info@BrighterSight.ca
         </div>
     </div>
 
+    <!-- Add Guest Modal -->
+    <div class="modal fade" id="addGuestModal" tabindex="-1" aria-labelledby="addGuestModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addGuestModalLabel">Add New Guest</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="add-guest-form">
+                        <div class="mb-3">
+                            <label for="guest-name" class="form-label">Guest Name *</label>
+                            <input type="text" class="form-control" id="guest-name" name="name" required
+                                   placeholder="Enter guest name" maxlength="50">
+                        </div>
+                        <div class="mb-3">
+                            <label for="guest-weight" class="form-label">Weight (lbs)</label>
+                            <input type="number" class="form-control" id="guest-weight" name="weight"
+                                   placeholder="Optional" min="50" max="500" step="0.1">
+                            <div class="form-text">Weight is used for BAC calculations. Can be set later if needed.</div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success" id="add-guest-btn" form="add-guest-form">
+                        Add Guest
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Handle add guest form submission
+            // Handle add guest modal
+            const addGuestModal = new bootstrap.Modal(document.getElementById('addGuestModal'));
             const addGuestForm = document.getElementById('add-guest-form');
             const addGuestBtn = document.getElementById('add-guest-btn');
             const guestNameInput = document.getElementById('guest-name');
@@ -164,6 +183,8 @@ For inquiries, contact: Info@BrighterSight.ca
                         // Clear form
                         guestNameInput.value = '';
                         guestWeightInput.value = '';
+                        // Close modal
+                        addGuestModal.hide();
                         // Reload page to show new guest
                         setTimeout(() => {
                             window.location.reload();

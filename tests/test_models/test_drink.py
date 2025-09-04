@@ -18,8 +18,10 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 For inquiries, contact: Info@BrighterSight.ca
 """
 
-import pytest
 from datetime import datetime, timedelta
+
+import pytest
+
 from app.models import Drink, DrinkConsumption, Guest
 
 
@@ -33,7 +35,7 @@ class TestDrinkModel:
             name="Test Beer",
             abv=4.5,
             volume_ml=330,
-            image_path="images/drinks/test_beer.png"
+            image_path="images/drinks/test_beer.png",
         )
         db_session.add(drink)
         db_session.commit()
@@ -54,9 +56,19 @@ class TestDrinkModel:
     def test_drink_alcohol_calculation(self, db_session):
         """Test alcohol content calculation for different drinks."""
         test_drinks = [
-            {"name": "Light Beer", "abv": 4.0, "volume_ml": 355, "expected_alcohol": 12.74},
+            {
+                "name": "Light Beer",
+                "abv": 4.0,
+                "volume_ml": 355,
+                "expected_alcohol": 12.74,
+            },
             {"name": "Wine", "abv": 12.0, "volume_ml": 150, "expected_alcohol": 14.22},
-            {"name": "Whiskey", "abv": 40.0, "volume_ml": 45, "expected_alcohol": 14.31},
+            {
+                "name": "Whiskey",
+                "abv": 40.0,
+                "volume_ml": 45,
+                "expected_alcohol": 14.31,
+            },
         ]
 
         for drink_data in test_drinks:
@@ -64,7 +76,7 @@ class TestDrinkModel:
                 name=drink_data["name"],
                 abv=drink_data["abv"],
                 volume_ml=drink_data["volume_ml"],
-                image_path="images/drinks/test.png"
+                image_path="images/drinks/test.png",
             )
             db_session.add(drink)
             db_session.commit()
@@ -81,7 +93,7 @@ class TestDrinkModel:
             name="Non-Alcoholic Beer",
             abv=0.0,
             volume_ml=355,
-            image_path="images/drinks/na_beer.png"
+            image_path="images/drinks/na_beer.png",
         )
         db_session.add(drink)
         db_session.commit()
@@ -96,7 +108,7 @@ class TestDrinkModel:
             name="High Proof Spirit",
             abv=95.0,
             volume_ml=30,
-            image_path="images/drinks/high_proof.png"
+            image_path="images/drinks/high_proof.png",
         )
         db_session.add(drink)
         db_session.commit()
@@ -114,9 +126,7 @@ class TestDrinkConsumptionModel:
         """Test creating a drink consumption."""
         timestamp = datetime.utcnow()
         consumption = DrinkConsumption(
-            guest_id=sample_guest.id,
-            drink_id=sample_drink.id,
-            timestamp=timestamp
+            guest_id=sample_guest.id, drink_id=sample_drink.id, timestamp=timestamp
         )
         db_session.add(consumption)
         db_session.commit()
@@ -150,15 +160,13 @@ class TestDrinkConsumptionModel:
             base_time - timedelta(hours=2),
             base_time - timedelta(hours=1),
             base_time - timedelta(minutes=30),
-            base_time
+            base_time,
         ]
 
         consumptions = []
         for i, timestamp in enumerate(times):
             consumption = DrinkConsumption(
-                guest_id=sample_guest.id,
-                drink_id=beer.id,
-                timestamp=timestamp
+                guest_id=sample_guest.id, drink_id=beer.id, timestamp=timestamp
             )
             db_session.add(consumption)
             consumptions.append(consumption)
@@ -166,13 +174,18 @@ class TestDrinkConsumptionModel:
         db_session.commit()
 
         # Query consumptions ordered by timestamp
-        ordered_consumptions = DrinkConsumption.query.filter_by(
-            guest_id=sample_guest.id
-        ).order_by(DrinkConsumption.timestamp).all()
+        ordered_consumptions = (
+            DrinkConsumption.query.filter_by(guest_id=sample_guest.id)
+            .order_by(DrinkConsumption.timestamp)
+            .all()
+        )
 
         assert len(ordered_consumptions) == 4
         for i in range(len(ordered_consumptions) - 1):
-            assert ordered_consumptions[i].timestamp <= ordered_consumptions[i + 1].timestamp
+            assert (
+                ordered_consumptions[i].timestamp
+                <= ordered_consumptions[i + 1].timestamp
+            )
 
 
 class TestModelRelationships:
@@ -183,12 +196,14 @@ class TestModelRelationships:
         """Test the full relationship chain: Guest -> Consumption -> Drink."""
         # Create test data
         guest = Guest(name="Relationship Test", weight=170)
-        drink = Drink(name="Test Drink", abv=6.0, volume_ml=330,
-                     image_path="images/drinks/test.png")
+        drink = Drink(
+            name="Test Drink",
+            abv=6.0,
+            volume_ml=330,
+            image_path="images/drinks/test.png",
+        )
         consumption = DrinkConsumption(
-            guest_id=guest.id,
-            drink_id=drink.id,
-            timestamp=datetime.utcnow()
+            guest_id=guest.id, drink_id=drink.id, timestamp=datetime.utcnow()
         )
 
         db_session.add_all([guest, drink, consumption])
@@ -214,14 +229,10 @@ class TestModelRelationships:
 
         # Both guests drink the same beer
         consumption1 = DrinkConsumption(
-            guest_id=guest1.id,
-            drink_id=sample_drink.id,
-            timestamp=datetime.utcnow()
+            guest_id=guest1.id, drink_id=sample_drink.id, timestamp=datetime.utcnow()
         )
         consumption2 = DrinkConsumption(
-            guest_id=guest2.id,
-            drink_id=sample_drink.id,
-            timestamp=datetime.utcnow()
+            guest_id=guest2.id, drink_id=sample_drink.id, timestamp=datetime.utcnow()
         )
 
         db_session.add_all([consumption1, consumption2])

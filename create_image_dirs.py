@@ -28,18 +28,19 @@ For inquiries, contact: Info@BrighterSight.ca
 import os
 from pathlib import Path
 
+
 def create_image_directories():
     """
     Create the necessary directories for storing drink images.
-    
+
     Creates two directories:
     - app/static/images/drinks/ for application static images
     - ~/drinks/ for user-accessible drink images
-    
+
     The function checks if directories already exist before creating them.
     """
     # Create static/images/drinks directory
-    static_drinks_dir = Path(__file__).parent / 'app' / 'static' / 'images' / 'drinks'
+    static_drinks_dir = Path(__file__).parent / "app" / "static" / "images" / "drinks"
     if not static_drinks_dir.exists():
         static_drinks_dir.mkdir(parents=True)
         print(f"Created directory: {static_drinks_dir}")
@@ -47,12 +48,13 @@ def create_image_directories():
         print(f"Directory already exists: {static_drinks_dir}")
 
     # Create ~/drinks directory
-    home_drinks_dir = Path(os.path.expanduser('~/drinks'))
+    home_drinks_dir = Path(os.path.expanduser("~/drinks"))
     if not home_drinks_dir.exists():
         home_drinks_dir.mkdir(parents=True)
         print(f"Created directory: {home_drinks_dir}")
     else:
         print(f"Directory already exists: {home_drinks_dir}")
+
 
 if __name__ == "__main__":
     create_image_directories()

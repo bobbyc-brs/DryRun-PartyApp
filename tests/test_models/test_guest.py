@@ -18,10 +18,12 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 For inquiries, contact: Info@BrighterSight.ca
 """
 
-import pytest
 from datetime import datetime, timedelta
-from app.models import Guest, Drink, DrinkConsumption
+
+import pytest
+
 from app.constants import BAC_DISPLAY_CAP
+from app.models import Drink, DrinkConsumption, Guest
 
 
 class TestGuestModel:
@@ -83,7 +85,7 @@ class TestBACCalculation:
         consumption = DrinkConsumption(
             guest_id=sample_guest.id,
             drink_id=sample_drink.id,
-            timestamp=datetime.utcnow()
+            timestamp=datetime.utcnow(),
         )
         db_session.add(consumption)
         db_session.commit()
@@ -105,12 +107,21 @@ class TestBACCalculation:
         # Add multiple consumptions
         base_time = datetime.utcnow()
         consumptions = [
-            DrinkConsumption(guest_id=sample_guest.id, drink_id=beer.id,
-                           timestamp=base_time - timedelta(hours=1)),
-            DrinkConsumption(guest_id=sample_guest.id, drink_id=wine.id,
-                           timestamp=base_time - timedelta(minutes=30)),
-            DrinkConsumption(guest_id=sample_guest.id, drink_id=beer.id,
-                           timestamp=base_time - timedelta(minutes=10))
+            DrinkConsumption(
+                guest_id=sample_guest.id,
+                drink_id=beer.id,
+                timestamp=base_time - timedelta(hours=1),
+            ),
+            DrinkConsumption(
+                guest_id=sample_guest.id,
+                drink_id=wine.id,
+                timestamp=base_time - timedelta(minutes=30),
+            ),
+            DrinkConsumption(
+                guest_id=sample_guest.id,
+                drink_id=beer.id,
+                timestamp=base_time - timedelta(minutes=10),
+            ),
         ]
 
         for consumption in consumptions:
@@ -131,7 +142,7 @@ class TestBACCalculation:
         consumption = DrinkConsumption(
             guest_id=sample_guest.id,
             drink_id=sample_drink.id,
-            timestamp=datetime.utcnow() - timedelta(hours=2)
+            timestamp=datetime.utcnow() - timedelta(hours=2),
         )
         db_session.add(consumption)
         db_session.commit()
@@ -153,17 +164,19 @@ class TestBACCalculation:
         db_session.add(guest)
 
         # Create a high-ABV drink
-        strong_drink = Drink(name="High ABV Drink", abv=50.0, volume_ml=500,
-                           image_path="images/drinks/strong.png")
+        strong_drink = Drink(
+            name="High ABV Drink",
+            abv=50.0,
+            volume_ml=500,
+            image_path="images/drinks/strong.png",
+        )
         db_session.add(strong_drink)
         db_session.commit()
 
         # Add multiple strong drinks
         for _ in range(5):
             consumption = DrinkConsumption(
-                guest_id=guest.id,
-                drink_id=strong_drink.id,
-                timestamp=datetime.utcnow()
+                guest_id=guest.id, drink_id=strong_drink.id, timestamp=datetime.utcnow()
             )
             db_session.add(consumption)
         db_session.commit()
@@ -179,7 +192,7 @@ class TestBACCalculation:
         consumption = DrinkConsumption(
             guest_id=sample_guest.id,
             drink_id=sample_drink.id,
-            timestamp=datetime.utcnow()
+            timestamp=datetime.utcnow(),
         )
         db_session.add(consumption)
         db_session.commit()
@@ -188,9 +201,9 @@ class TestBACCalculation:
 
         # Should be rounded to 3 decimal places as per constants
         bac_str = f"{bac:.10f}"
-        decimal_part = bac_str.split('.')[1]
+        decimal_part = bac_str.split(".")[1]
         # Should not have more than 3 decimal places of precision
-        assert len(decimal_part.rstrip('0')) <= 3
+        assert len(decimal_part.rstrip("0")) <= 3
 
 
 class TestGuestRelationships:
@@ -202,7 +215,7 @@ class TestGuestRelationships:
         consumption = DrinkConsumption(
             guest_id=sample_guest.id,
             drink_id=sample_drink.id,
-            timestamp=datetime.utcnow()
+            timestamp=datetime.utcnow(),
         )
         db_session.add(consumption)
         db_session.commit()
@@ -222,12 +235,21 @@ class TestGuestRelationships:
 
         # Add multiple consumptions
         consumptions = [
-            DrinkConsumption(guest_id=sample_guest.id, drink_id=beer.id,
-                           timestamp=datetime.utcnow() - timedelta(hours=2)),
-            DrinkConsumption(guest_id=sample_guest.id, drink_id=wine.id,
-                           timestamp=datetime.utcnow() - timedelta(hours=1)),
-            DrinkConsumption(guest_id=sample_guest.id, drink_id=beer.id,
-                           timestamp=datetime.utcnow() - timedelta(minutes=30))
+            DrinkConsumption(
+                guest_id=sample_guest.id,
+                drink_id=beer.id,
+                timestamp=datetime.utcnow() - timedelta(hours=2),
+            ),
+            DrinkConsumption(
+                guest_id=sample_guest.id,
+                drink_id=wine.id,
+                timestamp=datetime.utcnow() - timedelta(hours=1),
+            ),
+            DrinkConsumption(
+                guest_id=sample_guest.id,
+                drink_id=beer.id,
+                timestamp=datetime.utcnow() - timedelta(minutes=30),
+            ),
         ]
 
         for consumption in consumptions:

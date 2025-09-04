@@ -55,7 +55,7 @@ graph TD
     A --> D[Update Weight]
     A --> E[Register Drink Consumption]
     A --> F[View Personal BAC]
-    
+
     B --> G[Drink List Display]
     C --> H[Guest Selection Page]
     D --> I[Weight Update Form]
@@ -72,7 +72,7 @@ graph TD
     A --> D[View Group BAC Charts]
     A --> E[Track Consumption Patterns]
     A --> F[Monitor Safety Thresholds]
-    
+
     B --> G[Guest Dashboard]
     C --> H[Individual BAC Timeline]
     D --> I[Group BAC Comparison]
@@ -91,21 +91,21 @@ sequenceDiagram
     participant GS as Guest Server
     participant DB as Database
     participant M as Models
-    
+
     G->>GB: Navigate to guest interface
     GB->>GS: GET /guest/
     GS->>DB: Query guests and drinks
     DB-->>GS: Return guest and drink data
     GS-->>GB: Render guest selection page
     GB-->>G: Display guest list and drinks
-    
+
     G->>GB: Select guest profile
     GB->>GS: GET /guest/select/{guest_id}
     GS->>DB: Query guest and drinks
     DB-->>GS: Return guest and drink data
     GS-->>GB: Render drink selection page
     GB-->>G: Display drink options
-    
+
     G->>GB: Click on drink
     GB->>GS: POST /guest/add_drink
     Note over GB,GS: {guest_id, drink_id}
@@ -127,14 +127,14 @@ sequenceDiagram
     participant DB as Database
     participant M as Models
     participant C as Chart Engine
-    
+
     H->>HB: Navigate to host dashboard
     HB->>HS: GET /host/
     HS->>DB: Query all guests
     DB-->>HS: Return guest data
     HS-->>HB: Render dashboard
     HB-->>H: Display guest overview
-    
+
     HB->>HS: GET /host/guest_data
     HS->>DB: Query guests and consumptions
     DB-->>HS: Return consumption data
@@ -142,7 +142,7 @@ sequenceDiagram
     M-->>HS: Return BAC calculations
     HS-->>HB: JSON guest data with BAC
     HB-->>H: Update guest statistics
-    
+
     HB->>HS: GET /host/group_bac_chart
     HS->>DB: Query guests with weight and drinks
     DB-->>HS: Return valid guest data
@@ -165,7 +165,7 @@ sequenceDiagram
     participant C as Constants
     participant DC as DrinkConsumption
     participant D as Drink
-    
+
     S->>M: calculate_bac()
     M->>M: Check if weight > 0
     alt Weight not set
@@ -175,7 +175,7 @@ sequenceDiagram
         C-->>M: Return AVERAGE_GENDER_CONSTANT
         M->>M: Initialize total_alcohol_grams = 0
         M->>M: Get current time
-        
+
         loop For each drink consumption
             M->>DC: Get consumption timestamp
             DC-->>M: Return timestamp
@@ -190,7 +190,7 @@ sequenceDiagram
             M->>M: Calculate remaining_alcohol
             M->>M: Add to total_alcohol_grams
         end
-        
+
         M->>C: Get conversion factor
         C-->>M: Return LBS_TO_KG_CONVERSION
         M->>M: Convert weight to kg
@@ -213,7 +213,7 @@ sequenceDiagram
     participant I as Init Script
     participant DB as Database
     participant F as File System
-    
+
     U->>S: Run setup.py
     S->>V: Check if venv exists
     alt Virtual environment not found
@@ -247,25 +247,25 @@ graph TB
         GI[Guest Interface: Port 4000]
         HI[Host Interface: Port 4001]
     end
-    
+
     subgraph "Application Layer"
         GB[Guest Blueprint]
         HB[Host Blueprint]
         AM[Application Models]
         AC[Application Constants]
     end
-    
+
     subgraph "Data Layer"
         DB[(SQLite Database)]
         FS[File System\nguest List & Drink Data]
         IM[Image Storage]
     end
-    
+
     subgraph "External Services"
         CH[Chart Engine\nPlotly]
         BR[Browser]
     end
-    
+
     GI --> GB
     HI --> HB
     GB --> AM
@@ -286,19 +286,19 @@ flowchart TD
     A[Guest List File] --> B[Guest Model]
     C[Drink List CSV] --> D[Drink Model]
     E[Drink Images] --> F[Static Assets]
-    
+
     B --> G[Guest Interface]
     D --> G
     F --> G
-    
+
     G --> H[Drink Consumption]
     H --> I[Database]
-    
+
     I --> J[Host Interface]
     J --> K[BAC Calculation]
     K --> L[Chart Generation]
     L --> M[Visualization]
-    
+
     N[Constants] --> K
     N --> L
 ```
@@ -336,20 +336,20 @@ graph TB
         DB[(Production Database)]
         FS[File Storage]
     end
-    
+
     subgraph "Development Environment"
         DS[Development Server]
         DD[(Development Database)]
         DF[Local File Storage]
     end
-    
+
     LB --> WS1
     LB --> WS2
     WS1 --> DB
     WS2 --> DB
     WS1 --> FS
     WS2 --> FS
-    
+
     DS --> DD
     DS --> DF
 ```

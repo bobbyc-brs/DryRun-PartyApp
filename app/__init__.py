@@ -21,10 +21,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 For inquiries, contact: Info@BrighterSight.ca
 """
 
+import os
+from datetime import datetime
+
 from flask import Flask, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
-import os
 
 # Global SQLAlchemy instance
 db = SQLAlchemy()
@@ -43,6 +44,7 @@ def get_local_time(utc_dt):
     if utc_dt.tzinfo is None:
         # Assume UTC if no timezone info
         from datetime import timezone
+
         utc_dt = utc_dt.replace(tzinfo=timezone.utc)
 
     # Convert to local timezone
@@ -50,7 +52,7 @@ def get_local_time(utc_dt):
     return local_dt
 
 
-def format_local_time(utc_dt, format_str='%H:%M'):
+def format_local_time(utc_dt, format_str="%H:%M"):
     """
     Format a UTC datetime as a local time string.
 
@@ -63,6 +65,7 @@ def format_local_time(utc_dt, format_str='%H:%M'):
     """
     local_dt = get_local_time(utc_dt)
     return local_dt.strftime(format_str)
+
 
 def create_app(config_overrides=None):
     """
@@ -81,42 +84,42 @@ def create_app(config_overrides=None):
     app = Flask(__name__)
 
     # Set default configuration
-    app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-key-for-party-app')
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///party_drinks.db'
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-key-for-party-app")
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///party_drinks.db"
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
     # Apply configuration overrides if provided
     if config_overrides:
         app.config.update(config_overrides)
-    
+
     db.init_app(app)
-    
+
     from app.guest.routes import guest_bp
     from app.host.routes import host_bp
-    
+
     app.register_blueprint(guest_bp)
     app.register_blueprint(host_bp)
-    
+
     # Add root route redirects
-    @app.route('/')
+    @app.route("/")
     def index():
         """
         Root route that redirects to the appropriate interface based on port.
-        
+
         Determines whether to redirect to the guest interface (port 4000) or host
         interface (port 4001) based on the FLASK_RUN_PORT environment variable.
-        
+
         Returns:
             Response: Redirect response to the appropriate dashboard.
         """
         # Check which port we're running on to determine if we're guest or host
-        port = os.environ.get('FLASK_RUN_PORT', '4000')
-        if port == '4001':
-            return redirect(url_for('host.dashboard'))
+        port = os.environ.get("FLASK_RUN_PORT", "4000")
+        if port == "4001":
+            return redirect(url_for("host.dashboard"))
         else:
-            return redirect(url_for('guest.index'))
-    
+            return redirect(url_for("guest.index"))
+
     with app.app_context():
         db.create_all()
-        
+
     return app

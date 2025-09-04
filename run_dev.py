@@ -29,47 +29,51 @@ For inquiries, contact: Info@BrighterSight.ca
 #!/usr/bin/env python
 
 import os
-import sys
 import subprocess
+import sys
 import threading
 import time
 import webbrowser
 from pathlib import Path
 
+
 def run_server(script_path, port):
     """
     Run a server script in a subprocess with development environment variables.
-    
+
     Args:
         script_path (str): Path to the server script to run.
         port (int): Port number for the server (used for logging).
     """
     env = os.environ.copy()
-    env['FLASK_ENV'] = 'development'
-    env['FLASK_DEBUG'] = 'True'
-    
+    env["FLASK_ENV"] = "development"
+    env["FLASK_DEBUG"] = "True"
+
     subprocess.run([sys.executable, script_path], env=env)
+
 
 def open_browser(port, delay=2):
     """
     Open browser to the specified port after a delay.
-    
+
     Args:
         port (int): Port number to open in the browser.
         delay (int): Delay in seconds before opening the browser.
     """
+
     def _open_browser():
         time.sleep(delay)
-        webbrowser.open(f'http://localhost:{port}')
-    
+        webbrowser.open(f"http://localhost:{port}")
+
     thread = threading.Thread(target=_open_browser)
     thread.daemon = True
     thread.start()
 
+
 def main():
     """
     Main function to run both guest and host servers in development mode.
-    
+
     This function handles the complete development setup including:
     - Virtual environment validation
     - Sample data initialization if needed
@@ -79,55 +83,63 @@ def main():
     - Keeping the main thread alive until interrupted
     """
     project_dir = Path(__file__).parent.absolute()
-    guest_script = project_dir / 'run.py'
-    host_script = project_dir / 'run_host.py'
-    
+    guest_script = project_dir / "run.py"
+    host_script = project_dir / "run_host.py"
+
     print("Starting Party Drink Tracker in development mode...")
-    
+
     # Check if virtual environment is active
-    if not hasattr(sys, 'real_prefix') and not (hasattr(sys, 'base_prefix') and sys.base_prefix != sys.prefix):
+    if not hasattr(sys, "real_prefix") and not (
+        hasattr(sys, "base_prefix") and sys.base_prefix != sys.prefix
+    ):
         print("\nWARNING: You are not running in a virtual environment!")
         print("It's recommended to activate the virtual environment first.")
         continue_anyway = input("Continue anyway? (y/n): ").lower()
-        if continue_anyway != 'y':
+        if continue_anyway != "y":
             print("Exiting...")
             return
-    
+
     # Check if sample data exists
-    guest_list_path = os.path.expanduser('~/guest-list')
-    drink_list_path = os.path.expanduser('~/drinks/drink-list.csv')
-    
+    guest_list_path = os.path.expanduser("~/guest-list")
+    drink_list_path = os.path.expanduser("~/drinks/drink-list.csv")
+
     if not os.path.exists(guest_list_path) or not os.path.exists(drink_list_path):
         print("\nSample data files not found. Running initialization script...")
-        subprocess.run([sys.executable, 'init_sample_data.py'], cwd=project_dir, check=True)
-    
+        subprocess.run(
+            [sys.executable, "init_sample_data.py"], cwd=project_dir, check=True
+        )
+
     # Create placeholder images if needed
-    drinks_dir = Path(os.path.expanduser('~/drinks'))
-    if not any(drinks_dir.glob('*.png')):
+    drinks_dir = Path(os.path.expanduser("~/drinks"))
+    if not any(drinks_dir.glob("*.png")):
         print("\nCreating placeholder drink images...")
-        subprocess.run([sys.executable, 'create_placeholder_images.py'], cwd=project_dir, check=True)
-    
+        subprocess.run(
+            [sys.executable, "create_placeholder_images.py"],
+            cwd=project_dir,
+            check=True,
+        )
+
     # Start servers in separate threads
     print("\nStarting guest server on port 4000...")
     guest_thread = threading.Thread(target=run_server, args=(guest_script, 4000))
     guest_thread.daemon = True
     guest_thread.start()
-    
+
     print("Starting host server on port 4001...")
     host_thread = threading.Thread(target=run_server, args=(host_script, 4001))
     host_thread.daemon = True
     host_thread.start()
-    
+
     # Open browsers
     print("\nOpening browsers...")
     open_browser(4000)
     open_browser(4001, delay=3)
-    
+
     print("\nServers are running!")
     print("Guest interface: http://localhost:4000")
     print("Host interface: http://localhost:4001")
     print("\nPress Ctrl+C to stop the servers")
-    
+
     try:
         # Keep the main thread alive
         while True:
@@ -135,6 +147,7 @@ def main():
     except KeyboardInterrupt:
         print("\nShutting down servers...")
         sys.exit(0)
+
 
 if __name__ == "__main__":
     main()

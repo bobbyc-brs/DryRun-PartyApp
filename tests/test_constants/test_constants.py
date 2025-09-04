@@ -19,6 +19,7 @@ For inquiries, contact: Info@BrighterSight.ca
 """
 
 import pytest
+
 from app.constants import *
 
 
@@ -191,7 +192,7 @@ class TestConstantsTypeValidation:
             DRINK_MARKER_SIZE,
             GUEST_PORT,
             HOST_PORT,
-            BAC_DECIMAL_PRECISION
+            BAC_DECIMAL_PRECISION,
         ]
 
         for const in numeric_constants:
@@ -202,7 +203,7 @@ class TestConstantsTypeValidation:
         string_constants = [
             DEFAULT_GUEST_LIST_PATH,
             DEFAULT_DRINK_LIST_PATH,
-            DEFAULT_DRINKS_DIR
+            DEFAULT_DRINKS_DIR,
         ]
 
         for const in string_constants:
@@ -226,7 +227,7 @@ class TestConstantsTypeValidation:
             DRINK_MARKER_SIZE,
             GUEST_PORT,
             HOST_PORT,
-            BAC_DECIMAL_PRECISION
+            BAC_DECIMAL_PRECISION,
         ]
 
         for const in positive_constants:

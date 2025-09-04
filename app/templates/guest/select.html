@@ -36,7 +36,7 @@ For inquiries, contact: Info@BrighterSight.ca
                 <p class="lead">Select drinks you consume throughout the party</p>
             </div>
         </div>
-        
+
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
@@ -47,7 +47,7 @@ For inquiries, contact: Info@BrighterSight.ca
                 {% endfor %}
             {% endif %}
         {% endwith %}
-        
+
         <div class="row mb-4">
             <div class="col-md-6">
                 <div class="card">
@@ -58,7 +58,7 @@ For inquiries, contact: Info@BrighterSight.ca
                         <form method="POST">
                             <div class="mb-3">
                                 <label for="weight" class="form-label">Your Weight (lbs)</label>
-                                <input type="number" class="form-control" id="weight" name="weight" 
+                                <input type="number" class="form-control" id="weight" name="weight"
                                        value="{{ guest.weight|default('', true) }}" min="50" max="500" step="0.1" required>
                                 <div class="form-text">
                                     This helps calculate your estimated BAC more accurately
@@ -69,7 +69,7 @@ For inquiries, contact: Info@BrighterSight.ca
                     </div>
                 </div>
             </div>
-            
+
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-header bg-info text-white">
@@ -96,7 +96,7 @@ For inquiries, contact: Info@BrighterSight.ca
                 </div>
             </div>
         </div>
-        
+
         <div class="row mb-4">
             <div class="col-12">
                 <div class="card">
@@ -110,7 +110,7 @@ For inquiries, contact: Info@BrighterSight.ca
                                 <div class="card h-100 drink-card" data-drink-id="{{ drink.id }}">
                                     <div class="drink-image-container">
                                         {% if drink.image_path %}
-                                            <img src="{{ url_for('static', filename=drink.image_path) }}" 
+                                            <img src="{{ url_for('static', filename=drink.image_path) }}"
                                                  class="card-img-top" alt="{{ drink.name }}">
                                         {% else %}
                                             <div class="placeholder-image">🍺</div>
@@ -121,8 +121,8 @@ For inquiries, contact: Info@BrighterSight.ca
                                         <p class="card-text">
                                             {{ drink.volume_ml }}ml | {{ drink.abv }}% ABV
                                         </p>
-                                        <button class="btn btn-primary btn-sm add-drink-btn" 
-                                                data-drink-id="{{ drink.id }}" 
+                                        <button class="btn btn-primary btn-sm add-drink-btn"
+                                                data-drink-id="{{ drink.id }}"
                                                 data-drink-name="{{ drink.name }}">
                                             I had this drink
                                         </button>
@@ -153,13 +153,13 @@ For inquiries, contact: Info@BrighterSight.ca
                     addDrink(drinkId, drinkName);
                 });
             });
-            
+
             // Function to add a drink via AJAX
             function addDrink(drinkId, drinkName) {
                 const formData = new FormData();
                 formData.append('guest_id', '{{ guest.id }}');
                 formData.append('drink_id', drinkId);
-                
+
                 fetch('{{ url_for("guest.add_drink") }}', {
                     method: 'POST',
                     body: formData
@@ -169,35 +169,35 @@ For inquiries, contact: Info@BrighterSight.ca
                     if (data.success) {
                         // Update the drink history
                         const drinkHistory = document.getElementById('drink-history');
-                        
+
                         // Check if there's a "No drinks recorded yet" message
                         if (drinkHistory.querySelector('p')) {
                             drinkHistory.innerHTML = '<ul class="list-group"></ul>';
                         }
-                        
+
                         const historyList = drinkHistory.querySelector('ul') || document.createElement('ul');
                         historyList.classList.add('list-group');
-                        
+
                         // Create new list item
                         const listItem = document.createElement('li');
                         listItem.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-center');
-                        
+
                         // Add drink name
                         listItem.textContent = drinkName + ' ';
-                        
+
                         // Add timestamp badge
                         const badge = document.createElement('span');
                         badge.classList.add('badge', 'bg-primary', 'rounded-pill');
                         badge.textContent = data.timestamp;
                         listItem.appendChild(badge);
-                        
+
                         // Add to the top of the list
                         historyList.insertBefore(listItem, historyList.firstChild);
-                        
+
                         if (!drinkHistory.contains(historyList)) {
                             drinkHistory.appendChild(historyList);
                         }
-                        
+
                         // Show success message at bottom of page
                         const alertDiv = document.createElement('div');
                         alertDiv.classList.add('alert', 'alert-success', 'alert-dismissible', 'fade', 'show', 'position-fixed', 'bottom-0', 'end-0', 'm-3', 'mb-3');
@@ -207,11 +207,11 @@ For inquiries, contact: Info@BrighterSight.ca
                             ${data.message}
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         `;
-                        
+
                         // Insert at the bottom of the container
                         const container = document.querySelector('.container');
                         container.appendChild(alertDiv);
-                        
+
                         // Auto dismiss after 3 seconds
                         setTimeout(() => {
                             alertDiv.classList.remove('show');

@@ -1,0 +1,76 @@
+# Simplified pre-commit configuration for Party Drink Tracker
+# Copyright (C) 2025 Brighter Sight
+
+repos:
+  # Basic file checks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+        description: Remove trailing whitespace
+      - id: end-of-file-fixer
+        description: Ensure files end with newline
+      - id: check-yaml
+        description: Check YAML syntax
+      - id: check-json
+        description: Check JSON syntax
+      - id: check-merge-conflict
+        description: Check for merge conflict markers
+      - id: check-added-large-files
+        description: Prevent large files from being committed
+        args: ['--maxkb=1000']
+      - id: debug-statements
+        description: Check for debug statements (pdb, ipdb, etc.)
+
+  # Python code formatting
+  - repo: https://github.com/psf/black
+    rev: 23.12.1
+    hooks:
+      - id: black
+        description: Format Python code with black
+        language_version: python3
+        args: ['--line-length=88']
+
+  # Import sorting
+  - repo: https://github.com/pycqa/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+        description: Sort Python imports
+        args: ['--profile', 'black', '--line-length', '88']
+
+  # Python linting
+  - repo: https://github.com/pycqa/flake8
+    rev: 7.0.0
+    hooks:
+      - id: flake8
+        description: Lint Python code with flake8
+        args: ['--max-line-length=88', '--extend-ignore=E203,W503']
+
+  # Security checks
+  - repo: https://github.com/pycqa/bandit
+    rev: 1.7.5
+    hooks:
+      - id: bandit
+        description: Security linting for Python
+        args: ['-r', '.', '-f', 'json', '-o', 'bandit-report.json']
+        exclude: '^tests/'
+
+  # Custom hook for basic validation
+  - repo: local
+    hooks:
+      - id: check-requirements
+        name: check-requirements
+        entry: bash -c 'cd /home/bobbyc/Projects/DryRun-PartyApp && source venv/bin/activate && pip check'
+        language: system
+        pass_filenames: false
+        always_run: true
+        description: Check for dependency conflicts
+
+      - id: validate-flask-app
+        name: validate-flask-app
+        entry: bash -c 'cd /home/bobbyc/Projects/DryRun-PartyApp && source venv/bin/activate && python -c "from app import create_app; app = create_app(); print(\"✅ Flask app imports successfully\")"'
+        language: system
+        pass_filenames: false
+        always_run: true
+        description: Validate Flask app can be imported

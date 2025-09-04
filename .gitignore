@@ -40,3 +40,10 @@ instance/
 
 # Project specific
 app/static/images/drinks/
+# Pre-commit and development files
+bandit-report.json
+.coverage
+htmlcov/
+.pytest_cache/
+.mypy_cache/
+.tox/

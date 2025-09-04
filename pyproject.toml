@@ -1,0 +1,200 @@
+# pyproject.toml for Party Drink Tracker
+# Copyright (C) 2025 Brighter Sight
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "party-drink-tracker"
+version = "0.3.0"
+description = "A web-accessible application to track party drinks and monitor estimated blood alcohol content (BAC) levels"
+authors = [
+    {name = "Brighter Sight", email = "Info@BrighterSight.ca"}
+]
+license = {text = "GPL-3.0"}
+readme = "README.md"
+requires-python = ">=3.7"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
+    "Topic :: Scientific/Engineering :: Medical Science Apps.",
+]
+
+dependencies = [
+    "Flask>=2.3.3",
+    "Flask-SQLAlchemy>=3.1.0",
+    "Flask-WTF>=1.2.1",
+    "matplotlib>=3.8.0",
+    "pandas>=2.1.1",
+    "Pillow>=10.0.1",
+    "plotly>=5.17.0",
+    "python-dotenv>=1.0.0",
+    "SQLAlchemy>=2.0.21",
+    "Werkzeug>=2.3.7",
+    "gunicorn>=21.2.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pre-commit>=3.6.0",
+    "black>=23.12.1",
+    "isort>=5.13.2",
+    "flake8>=7.0.0",
+    "pylint>=3.0.3",
+    "bandit>=1.7.5",
+    "safety>=2.3.5",
+    "pytest>=7.4.3",
+    "pytest-cov>=4.1.0",
+    "pytest-flask>=1.2.0",
+    "pytest-mock>=3.12.0",
+    "pytest-xdist>=3.5.0",
+    "pytest-html>=4.1.1",
+    "pytest-benchmark>=4.0.0",
+    "mypy>=1.8.0",
+    "coverage>=7.4.0",
+    "sphinx>=7.2.6",
+    "sphinx-rtd-theme>=2.0.0",
+    "ipython>=8.18.1",
+    "jupyter>=1.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/bobbyc-brs/DryRun-PartyApp"
+Repository = "https://github.com/bobbyc-brs/DryRun-PartyApp"
+Issues = "https://github.com/bobbyc-brs/DryRun-PartyApp/issues"
+
+[project.scripts]
+party-drink-tracker = "app:main"
+
+# Black configuration
+[tool.black]
+line-length = 88
+target-version = ['py37', 'py38', 'py39', 'py310', 'py311', 'py312']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | venv
+  | _build
+  | buck-out
+  | build
+  | dist
+  | instance
+)/
+'''
+
+# isort configuration
+[tool.isort]
+profile = "black"
+line_length = 88
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+ensure_newline_before_comments = true
+skip_glob = ["venv/*", "instance/*", "build/*", "dist/*"]
+
+# Pytest configuration
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "--verbose",
+    "--tb=short",
+    "--strict-markers",
+    "--disable-warnings",
+    "--cov=app",
+    "--cov-report=term-missing",
+    "--cov-report=html:htmlcov",
+    "--cov-fail-under=80"
+]
+markers = [
+    "unit: Unit tests",
+    "integration: Integration tests",
+    "models: Model-related tests",
+    "routes: Route-related tests",
+    "bac: BAC calculation tests"
+]
+
+# Coverage configuration
+[tool.coverage.run]
+source = ["app"]
+omit = [
+    "*/tests/*",
+    "*/venv/*",
+    "*/instance/*",
+    "*/migrations/*"
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]
+
+# MyPy configuration
+[tool.mypy]
+python_version = "3.7"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+
+[[tool.mypy.overrides]]
+module = [
+    "flask.*",
+    "flask_sqlalchemy.*",
+    "flask_wtf.*",
+    "matplotlib.*",
+    "pandas.*",
+    "PIL.*",
+    "plotly.*",
+    "sqlalchemy.*",
+    "werkzeug.*",
+    "gunicorn.*",
+]
+ignore_missing_imports = true
+
+# Bandit configuration
+[tool.bandit]
+exclude_dirs = ["tests", "venv", "instance"]
+skips = ["B101", "B601"]  # Skip assert_used and shell_injection_subprocess

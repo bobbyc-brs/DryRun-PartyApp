@@ -23,35 +23,38 @@ For inquiries, contact: Info@BrighterSight.ca
 """
 
 from datetime import datetime
+
 from app import db
 from app.constants import (
-    ETHANOL_DENSITY_G_PER_ML, 
-    AVERAGE_GENDER_CONSTANT, 
-    BAC_METABOLISM_RATE, 
-    LBS_TO_KG_CONVERSION, 
-    BAC_DISPLAY_CAP, 
-    BAC_DECIMAL_PRECISION
+    AVERAGE_GENDER_CONSTANT,
+    BAC_DECIMAL_PRECISION,
+    BAC_DISPLAY_CAP,
+    BAC_METABOLISM_RATE,
+    ETHANOL_DENSITY_G_PER_ML,
+    LBS_TO_KG_CONVERSION,
 )
+
 
 class Guest(db.Model):
     """
     Model representing a party guest.
-    
+
     Attributes:
         id (int): Primary key identifier for the guest.
         name (str): The guest's name (max 100 characters).
         weight (float): The guest's weight in pounds (optional).
         drinks (relationship): One-to-many relationship with DrinkConsumption.
     """
+
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     weight = db.Column(db.Float, nullable=True)  # in lbs
-    drinks = db.relationship('DrinkConsumption', backref='consumer', lazy=True)
-    
+    drinks = db.relationship("DrinkConsumption", backref="consumer", lazy=True)
+
     def __repr__(self):
         """
         String representation of the Guest object.
-        
+
         Returns:
             str: A string representation showing the guest's name.
         """
@@ -100,7 +103,9 @@ class Guest(db.Model):
         # Apply metabolism: BAC decreases at a relatively constant rate
         # Find the earliest consumption time to calculate total elapsed time
         earliest_consumption = min(self.drinks, key=lambda c: c.timestamp)
-        total_hours_elapsed = (current_time - earliest_consumption.timestamp).total_seconds() / 3600
+        total_hours_elapsed = (
+            current_time - earliest_consumption.timestamp
+        ).total_seconds() / 3600
 
         # Metabolism rate is approximately 0.015% BAC per hour for most people
         # This rate is relatively constant regardless of body weight (since BAC is normalized)
@@ -109,10 +114,11 @@ class Guest(db.Model):
 
         return round(min(bac, BAC_DISPLAY_CAP), BAC_DECIMAL_PRECISION)
 
+
 class Drink(db.Model):
     """
     Model representing a drink type available at the party.
-    
+
     Attributes:
         id (int): Primary key identifier for the drink.
         name (str): The drink's name (max 100 characters).
@@ -121,44 +127,47 @@ class Drink(db.Model):
         volume_ml (float): Standard volume of the drink in milliliters.
         consumptions (relationship): One-to-many relationship with DrinkConsumption.
     """
+
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     image_path = db.Column(db.String(255), nullable=True)
     abv = db.Column(db.Float, nullable=False)  # Alcohol by volume percentage
     volume_ml = db.Column(db.Float, nullable=False)  # Volume in milliliters
-    consumptions = db.relationship('DrinkConsumption', backref='drink', lazy=True)
-    
+    consumptions = db.relationship("DrinkConsumption", backref="drink", lazy=True)
+
     def __repr__(self):
         """
         String representation of the Drink object.
-        
+
         Returns:
             str: A string representation showing the drink's name, ABV, and volume.
         """
         return f"Drink('{self.name}', {self.abv}% ABV, {self.volume_ml}ml)"
 
+
 class DrinkConsumption(db.Model):
     """
     Model representing a single drink consumption event by a guest.
-    
+
     This model tracks when a guest consumed a specific drink, linking guests
     to drinks with a timestamp for BAC calculations.
-    
+
     Attributes:
         id (int): Primary key identifier for the consumption record.
         guest_id (int): Foreign key reference to the Guest who consumed the drink.
         drink_id (int): Foreign key reference to the Drink that was consumed.
         timestamp (datetime): When the drink was consumed (defaults to current UTC time).
     """
+
     id = db.Column(db.Integer, primary_key=True)
-    guest_id = db.Column(db.Integer, db.ForeignKey('guest.id'), nullable=False)
-    drink_id = db.Column(db.Integer, db.ForeignKey('drink.id'), nullable=False)
+    guest_id = db.Column(db.Integer, db.ForeignKey("guest.id"), nullable=False)
+    drink_id = db.Column(db.Integer, db.ForeignKey("drink.id"), nullable=False)
     timestamp = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    
+
     def __repr__(self):
         """
         String representation of the DrinkConsumption object.
-        
+
         Returns:
             str: A string representation showing guest ID, drink ID, and timestamp.
         """

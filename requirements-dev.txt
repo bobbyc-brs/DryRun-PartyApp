@@ -1,0 +1,27 @@
+# Development dependencies for Party Drink Tracker
+# Copyright (C) 2025 Brighter Sight
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# Pre-commit hooks
+pre-commit>=3.0.0
+
+# Code formatting and linting
+black>=23.0.0
+isort>=5.0.0
+flake8>=6.0.0
+
+# Security tools
+bandit>=1.7.0
+
+# Additional testing tools (already in requirements.txt, but with specific versions)
+pytest-xdist>=3.0.0  # Parallel test execution
+pytest-html>=3.0.0   # HTML test reports
+
+# Code quality tools
+coverage>=7.0.0  # Code coverage
+
+# Development utilities
+ipython>=8.0.0  # Enhanced Python shell

@@ -18,9 +18,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 For inquiries, contact: Info@BrighterSight.ca
 """
 
+from datetime import datetime, timedelta, timezone
+
 import pytest
-from datetime import datetime, timezone, timedelta
-from app import get_local_time, format_local_time
+
+from app import format_local_time, get_local_time
 
 
 class TestTimezoneUtilities:
@@ -59,13 +61,13 @@ class TestTimezoneUtilities:
         utc_dt = datetime(2025, 1, 15, 12, 30, 45, tzinfo=timezone.utc)
 
         # Format as local time
-        formatted = format_local_time(utc_dt, '%H:%M:%S')
+        formatted = format_local_time(utc_dt, "%H:%M:%S")
 
         # Should return a string
         assert isinstance(formatted, str)
         # Should be in HH:MM:SS format
         assert len(formatted) == 8  # HH:MM:SS is 8 characters
-        assert ':' in formatted
+        assert ":" in formatted
 
     def test_format_local_time_with_date(self):
         """Test format_local_time with date formatting."""
@@ -73,26 +75,26 @@ class TestTimezoneUtilities:
         utc_dt = datetime(2025, 1, 15, 12, 30, 45, tzinfo=timezone.utc)
 
         # Format as local time with date
-        formatted = format_local_time(utc_dt, '%Y-%m-%d %H:%M')
+        formatted = format_local_time(utc_dt, "%Y-%m-%d %H:%M")
 
         # Should return a string
         assert isinstance(formatted, str)
         # Should contain expected date format
-        assert '2025' in formatted
-        assert ':' in formatted
+        assert "2025" in formatted
+        assert ":" in formatted
 
     def test_format_local_time_different_formats(self):
         """Test format_local_time with different strftime formats."""
         utc_dt = datetime(2025, 1, 15, 14, 25, 30, tzinfo=timezone.utc)
 
         # Test 24-hour format
-        time_24h = format_local_time(utc_dt, '%H:%M')
+        time_24h = format_local_time(utc_dt, "%H:%M")
         assert isinstance(time_24h, str)
 
         # Test 12-hour format
-        time_12h = format_local_time(utc_dt, '%I:%M %p')
+        time_12h = format_local_time(utc_dt, "%I:%M %p")
         assert isinstance(time_12h, str)
-        assert any(ampm in time_12h.upper() for ampm in ['AM', 'PM'])
+        assert any(ampm in time_12h.upper() for ampm in ["AM", "PM"])
 
     def test_timezone_consistency(self):
         """Test that multiple calls to timezone functions are consistent."""
@@ -106,8 +108,8 @@ class TestTimezoneUtilities:
         assert local1 == local2
 
         # Format multiple times
-        format1 = format_local_time(utc_dt, '%H:%M:%S')
-        format2 = format_local_time(utc_dt, '%H:%M:%S')
+        format1 = format_local_time(utc_dt, "%H:%M:%S")
+        format2 = format_local_time(utc_dt, "%H:%M:%S")
 
         # Should be the same
         assert format1 == format2

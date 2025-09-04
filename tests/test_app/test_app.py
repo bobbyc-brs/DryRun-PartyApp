@@ -21,10 +21,12 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 For inquiries, contact: Info@BrighterSight.ca
 """
 
-import pytest
 import os
+
+import pytest
+
 from app import create_app, db
-from app.models import Guest, Drink, DrinkConsumption
+from app.models import Drink, DrinkConsumption, Guest
 
 
 class TestAppCreation:
@@ -35,35 +37,35 @@ class TestAppCreation:
         app = create_app()
 
         assert app is not None
-        assert hasattr(app, 'config')
-        assert app.config['TESTING'] is False
+        assert hasattr(app, "config")
+        assert app.config["TESTING"] is False
 
     def test_create_app_testing_config(self):
         """Test creating app with testing configuration."""
         config = {
-            'TESTING': True,
-            'SECRET_KEY': 'test-key',
-            'SQLALCHEMY_DATABASE_URI': 'sqlite:///:memory:'
+            "TESTING": True,
+            "SECRET_KEY": "test-key",
+            "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
         }
 
         app = create_app(config)
 
-        assert app.config['TESTING'] is True
-        assert app.config['SECRET_KEY'] == 'test-key'
-        assert 'sqlite:///:memory:' in app.config['SQLALCHEMY_DATABASE_URI']
+        assert app.config["TESTING"] is True
+        assert app.config["SECRET_KEY"] == "test-key"
+        assert "sqlite:///:memory:" in app.config["SQLALCHEMY_DATABASE_URI"]
 
     def test_app_has_required_attributes(self):
         """Test that app has all required Flask attributes."""
         app = create_app()
 
         # Basic Flask attributes
-        assert hasattr(app, 'route')
-        assert hasattr(app, 'add_url_rule')
-        assert hasattr(app, 'url_for')
-        assert hasattr(app, 'config')
+        assert hasattr(app, "route")
+        assert hasattr(app, "add_url_rule")
+        assert hasattr(app, "url_for")
+        assert hasattr(app, "config")
 
         # Database
-        assert hasattr(app, 'db')
+        assert hasattr(app, "db")
         assert app.db is db
 
     def test_app_blueprints_registered(self):
@@ -75,15 +77,15 @@ class TestAppCreation:
             rules = [str(rule) for rule in app.url_map.iter_rules()]
 
             # Should have guest routes
-            guest_routes = [rule for rule in rules if rule.startswith('/guest')]
+            guest_routes = [rule for rule in rules if rule.startswith("/guest")]
             assert len(guest_routes) > 0
 
             # Should have host routes
-            host_routes = [rule for rule in rules if rule.startswith('/host')]
+            host_routes = [rule for rule in rules if rule.startswith("/host")]
             assert len(host_routes) > 0
 
             # Should have root routes
-            root_routes = [rule for rule in rules if rule == '/']
+            root_routes = [rule for rule in rules if rule == "/"]
             assert len(root_routes) > 0
 
 
@@ -107,9 +109,9 @@ class TestAppDatabase:
             registry = db.Model._sa_registry._class_registry
 
             # Should contain our models
-            assert 'Guest' in registry
-            assert 'Drink' in registry
-            assert 'DrinkConsumption' in registry
+            assert "Guest" in registry
+            assert "Drink" in registry
+            assert "DrinkConsumption" in registry
 
     def test_db_relationships(self, app):
         """Test that database relationships work correctly."""
@@ -118,12 +120,16 @@ class TestAppDatabase:
 
             # Create test data
             guest = Guest(name="Test Guest", weight=150)
-            drink = Drink(name="Test Beer", abv=5.0, volume_ml=355,
-                         image_path="images/drinks/test.png")
+            drink = Drink(
+                name="Test Beer",
+                abv=5.0,
+                volume_ml=355,
+                image_path="images/drinks/test.png",
+            )
             consumption = DrinkConsumption(
                 guest_id=guest.id,
                 drink_id=drink.id,
-                timestamp=None  # Will be set by database
+                timestamp=None,  # Will be set by database
             )
 
             db.session.add_all([guest, drink, consumption])
@@ -141,21 +147,21 @@ class TestAppRoutes:
 
     def test_root_route_redirects(self, client):
         """Test that root route redirects appropriately."""
-        response = client.get('/')
+        response = client.get("/")
         assert response.status_code == 302  # Redirect
 
         # Should redirect to guest or host interface
-        location = response.headers.get('Location', '')
-        assert '/guest/' in location or '/host/' in location
+        location = response.headers.get("Location", "")
+        assert "/guest/" in location or "/host/" in location
 
     def test_404_handling(self, client):
         """Test 404 error handling."""
-        response = client.get('/nonexistent')
+        response = client.get("/nonexistent")
         assert response.status_code == 404
 
     def test_static_files(self, client):
         """Test that static files are served."""
-        response = client.get('/static/css/style.css')
+        response = client.get("/static/css/style.css")
         # Should either serve the file or return 404 if file doesn't exist
         assert response.status_code in [200, 404]
 
@@ -165,33 +171,33 @@ class TestAppConfiguration:
 
     def test_secret_key_set(self, app):
         """Test that secret key is properly set."""
-        assert 'SECRET_KEY' in app.config
-        assert app.config['SECRET_KEY'] is not None
-        assert len(app.config['SECRET_KEY']) > 0
+        assert "SECRET_KEY" in app.config
+        assert app.config["SECRET_KEY"] is not None
+        assert len(app.config["SECRET_KEY"]) > 0
 
     def test_database_uri_set(self, app):
         """Test that database URI is properly set."""
-        assert 'SQLALCHEMY_DATABASE_URI' in app.config
-        assert app.config['SQLALCHEMY_DATABASE_URI'] is not None
+        assert "SQLALCHEMY_DATABASE_URI" in app.config
+        assert app.config["SQLALCHEMY_DATABASE_URI"] is not None
 
     def test_wtf_csrf_disabled_in_testing(self):
         """Test that CSRF is disabled in testing mode."""
-        config = {'TESTING': True}
+        config = {"TESTING": True}
         app = create_app(config)
 
         # In testing mode, CSRF should be disabled
-        assert app.config.get('WTF_CSRF_ENABLED', True) is False
+        assert app.config.get("WTF_CSRF_ENABLED", True) is False
 
     def test_debug_mode_config(self):
         """Test debug mode configuration."""
         # Default app (not testing)
         app = create_app()
-        assert app.config['DEBUG'] is False
+        assert app.config["DEBUG"] is False
 
         # Testing app
-        config = {'TESTING': True}
+        config = {"TESTING": True}
         app = create_app(config)
-        assert app.config['TESTING'] is True
+        assert app.config["TESTING"] is True
 
 
 class TestAppErrorHandling:
@@ -201,18 +207,18 @@ class TestAppErrorHandling:
         """Test 500 error handling."""
         # This would require triggering an actual 500 error
         # For now, just test that the app handles requests properly
-        response = client.get('/host/')
+        response = client.get("/host/")
         assert response.status_code in [200, 302, 404]  # Valid responses
 
     def test_invalid_route_handling(self, client):
         """Test handling of completely invalid routes."""
-        response = client.get('/invalid/route/that/does/not/exist')
+        response = client.get("/invalid/route/that/does/not/exist")
         assert response.status_code == 404
 
     def test_method_not_allowed(self, client):
         """Test handling of incorrect HTTP methods."""
         # Try POST on a GET-only route
-        response = client.post('/host/')
+        response = client.post("/host/")
         # Should either work (if route accepts POST) or return 405
         assert response.status_code in [200, 302, 405]
 
@@ -224,29 +230,33 @@ class TestAppIntegration:
         """Test a complete request flow."""
         # Create test data
         guest = Guest(name="Integration Test", weight=160)
-        drink = Drink(name="Integration Beer", abv=4.5, volume_ml=330,
-                     image_path="images/drinks/integration.png")
+        drink = Drink(
+            name="Integration Beer",
+            abv=4.5,
+            volume_ml=330,
+            image_path="images/drinks/integration.png",
+        )
         db_session.add_all([guest, drink])
         db_session.commit()
 
         # Test guest page
-        response = client.get('/guest/')
+        response = client.get("/guest/")
         assert response.status_code == 200
 
         # Test host page
-        response = client.get('/host/')
+        response = client.get("/host/")
         assert response.status_code == 200
 
         # Test guest selection
-        response = client.get(f'/guest/select/{guest.id}')
+        response = client.get(f"/guest/select/{guest.id}")
         assert response.status_code == 200
 
         # Test BAC chart
-        response = client.get(f'/host/bac_chart/{guest.id}')
+        response = client.get(f"/host/bac_chart/{guest.id}")
         assert response.status_code == 200
 
         # Test guest data API
-        response = client.get('/host/guest_data')
+        response = client.get("/host/guest_data")
         assert response.status_code == 200
 
         data = response.get_json()

@@ -29,19 +29,20 @@ For inquiries, contact: Info@BrighterSight.ca
 
 import os
 import shutil
-from pathlib import Path
 import sys
+from pathlib import Path
+
 
 def main():
     """
     Main cleanup function for removing generated data files.
-    
+
     This function interactively removes all generated data files including:
     - Guest list file (~/guest-list)
     - Drinks directory and contents (~/drinks/)
     - SQLite database file
     - Python cache directories (__pycache__)
-    
+
     The function requires user confirmation before proceeding with cleanup.
     """
     print("Party Drink Tracker Cleanup Utility")
@@ -51,37 +52,40 @@ def main():
     print("  - ~/drinks/ directory and contents")
     print("  - SQLite database file")
     print()
-    
+
     confirm = input("Are you sure you want to proceed? (y/n): ").lower()
-    if confirm != 'y':
+    if confirm != "y":
         print("Cleanup cancelled.")
         return
-    
+
     # Remove guest list
-    guest_list_path = os.path.expanduser('~/guest-list')
+    guest_list_path = os.path.expanduser("~/guest-list")
     if os.path.exists(guest_list_path):
         os.remove(guest_list_path)
         print(f"Removed {guest_list_path}")
-    
+
     # Remove drinks directory
-    drinks_dir = Path(os.path.expanduser('~/drinks'))
+    drinks_dir = Path(os.path.expanduser("~/drinks"))
     if drinks_dir.exists():
         shutil.rmtree(drinks_dir)
         print(f"Removed {drinks_dir}")
-    
+
     # Remove database file
     project_dir = Path(__file__).parent.absolute()
-    db_file = project_dir / 'instance' / 'party_drinks.db'
+    db_file = project_dir / "instance" / "party_drinks.db"
     if db_file.exists():
         os.remove(db_file)
         print(f"Removed {db_file}")
-    
+
     # Remove __pycache__ directories
-    for pycache_dir in project_dir.glob('**/__pycache__'):
+    for pycache_dir in project_dir.glob("**/__pycache__"):
         shutil.rmtree(pycache_dir)
         print(f"Removed {pycache_dir}")
-    
-    print("\nCleanup complete! You can now run init_sample_data.py to recreate the sample data.")
+
+    print(
+        "\nCleanup complete! You can now run init_sample_data.py to recreate the sample data."
+    )
+
 
 if __name__ == "__main__":
     main()

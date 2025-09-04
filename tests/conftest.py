@@ -18,15 +18,17 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 For inquiries, contact: Info@BrighterSight.ca
 """
 
-import pytest
-import tempfile
 import os
+import tempfile
 from datetime import datetime, timedelta
+
+import pytest
+
 from app import create_app, db
-from app.models import Guest, Drink, DrinkConsumption
+from app.models import Drink, DrinkConsumption, Guest
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope="session")
 def app():
     """Create and configure a test app instance."""
     # Create a temporary database for testing
@@ -34,11 +36,11 @@ def app():
 
     # Configure the app for testing
     config = {
-        'TESTING': True,
-        'SQLALCHEMY_DATABASE_URI': f'sqlite:///{db_path}',
-        'SQLALCHEMY_TRACK_MODIFICATIONS': False,
-        'SECRET_KEY': 'test-secret-key',
-        'WTF_CSRF_ENABLED': False
+        "TESTING": True,
+        "SQLALCHEMY_DATABASE_URI": f"sqlite:///{db_path}",
+        "SQLALCHEMY_TRACK_MODIFICATIONS": False,
+        "SECRET_KEY": "test-secret-key",
+        "WTF_CSRF_ENABLED": False,
     }
 
     app = create_app(config)
@@ -52,13 +54,13 @@ def app():
     os.unlink(db_path)
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope="function")
 def client(app):
     """A test client for the app."""
     return app.test_client()
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope="function")
 def db_session(app):
     """Create a new database session for a test."""
     with app.app_context():
@@ -72,9 +74,21 @@ def db_session(app):
         ]
 
         sample_drinks = [
-            Drink(name="Beer", abv=5.0, volume_ml=355, image_path="images/drinks/beer.png"),
-            Drink(name="Wine", abv=12.0, volume_ml=150, image_path="images/drinks/wine.png"),
-            Drink(name="Whiskey", abv=40.0, volume_ml=45, image_path="images/drinks/whiskey.png"),
+            Drink(
+                name="Beer", abv=5.0, volume_ml=355, image_path="images/drinks/beer.png"
+            ),
+            Drink(
+                name="Wine",
+                abv=12.0,
+                volume_ml=150,
+                image_path="images/drinks/wine.png",
+            ),
+            Drink(
+                name="Whiskey",
+                abv=40.0,
+                volume_ml=45,
+                image_path="images/drinks/whiskey.png",
+            ),
         ]
 
         for guest in sample_guests:
@@ -107,9 +121,7 @@ def sample_drink(db_session):
 def sample_consumption(sample_guest, sample_drink, db_session):
     """Create a sample drink consumption."""
     consumption = DrinkConsumption(
-        guest_id=sample_guest.id,
-        drink_id=sample_drink.id,
-        timestamp=datetime.utcnow()
+        guest_id=sample_guest.id, drink_id=sample_drink.id, timestamp=datetime.utcnow()
     )
     db_session.add(consumption)
     db_session.commit()
@@ -131,7 +143,7 @@ def multiple_consumptions(sample_guest, db_session):
     c1 = DrinkConsumption(
         guest_id=sample_guest.id,
         drink_id=beer.id,
-        timestamp=base_time - timedelta(hours=1)
+        timestamp=base_time - timedelta(hours=1),
     )
     db_session.add(c1)
     consumptions.append(c1)
@@ -140,7 +152,7 @@ def multiple_consumptions(sample_guest, db_session):
     c2 = DrinkConsumption(
         guest_id=sample_guest.id,
         drink_id=wine.id,
-        timestamp=base_time - timedelta(minutes=30)
+        timestamp=base_time - timedelta(minutes=30),
     )
     db_session.add(c2)
     consumptions.append(c2)
@@ -149,7 +161,7 @@ def multiple_consumptions(sample_guest, db_session):
     c3 = DrinkConsumption(
         guest_id=sample_guest.id,
         drink_id=beer.id,
-        timestamp=base_time - timedelta(minutes=10)
+        timestamp=base_time - timedelta(minutes=10),
     )
     db_session.add(c3)
     consumptions.append(c3)
