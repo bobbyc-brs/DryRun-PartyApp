@@ -118,7 +118,16 @@ def select_guest(guest_id):
             db.session.commit()
             flash('Weight updated successfully!', 'success')
     
-    return render_template('guest/select.html', guest=guest, drinks=drinks)
+    # Add local time formatted drink history to the template context
+    from app import format_local_time
+    drink_history = []
+    for consumption in guest.drinks:
+        drink_history.append({
+            'consumption': consumption,
+            'local_time': format_local_time(consumption.timestamp, '%H:%M:%S')
+        })
+
+    return render_template('guest/select.html', guest=guest, drinks=drinks, drink_history=drink_history)
 
 @guest_bp.route('/add_drink', methods=['POST'])
 def add_drink():

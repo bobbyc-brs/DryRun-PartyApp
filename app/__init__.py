@@ -64,21 +64,30 @@ def format_local_time(utc_dt, format_str='%H:%M'):
     local_dt = get_local_time(utc_dt)
     return local_dt.strftime(format_str)
 
-def create_app():
+def create_app(config_overrides=None):
     """
     Create and configure the Flask application.
-    
+
     This function creates a Flask app instance, configures it with database settings,
     registers blueprints for guest and host interfaces, and sets up root route redirects
     based on the port the application is running on.
-    
+
+    Args:
+        config_overrides (dict, optional): Dictionary of configuration overrides
+
     Returns:
         Flask: The configured Flask application instance.
     """
     app = Flask(__name__)
+
+    # Set default configuration
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-key-for-party-app')
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///party_drinks.db'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+    # Apply configuration overrides if provided
+    if config_overrides:
+        app.config.update(config_overrides)
     
     db.init_app(app)
     

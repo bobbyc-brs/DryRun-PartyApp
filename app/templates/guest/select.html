@@ -77,13 +77,13 @@ For inquiries, contact: Info@BrighterSight.ca
                     </div>
                     <div class="card-body">
                         <div id="drink-history">
-                            {% if guest.drinks|length > 0 %}
+                            {% if drink_history|length > 0 %}
                                 <ul class="list-group">
-                                {% for consumption in guest.drinks|sort(attribute='timestamp', reverse=true) %}
+                                {% for item in drink_history|sort(attribute='consumption.timestamp', reverse=true) %}
                                     <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        {{ consumption.drink.name }} 
+                                        {{ item.consumption.drink.name }}
                                         <span class="badge bg-primary rounded-pill">
-                                            {{ consumption.timestamp.strftime('%H:%M:%S') }}
+                                            {{ item.local_time }}
                                         </span>
                                     </li>
                                 {% endfor %}

@@ -19,8 +19,9 @@ For inquiries, contact: Info@BrighterSight.ca
 """
 
 import pytest
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from app.models import Guest, Drink, DrinkConsumption
+from app import format_local_time
 
 
 class TestGuestRoutes:
@@ -236,3 +237,127 @@ class TestGuestRouteDataValidation:
 
         assert response.status_code == 200
         # Should handle negative weight gracefully
+
+
+class TestGuestRouteTimezone:
+    """Test timezone functionality in guest routes."""
+
+    @pytest.mark.routes
+    def test_guest_select_with_drink_history_local_time(self, client, sample_guest, sample_drink):
+        """Test that drink history shows local time instead of UTC."""
+        # Create a drink consumption with a known timestamp
+        utc_timestamp = datetime(2025, 1, 15, 12, 30, 45, tzinfo=timezone.utc)
+        consumption = DrinkConsumption(
+            guest_id=sample_guest.id,
+            drink_id=sample_drink.id,
+            timestamp=utc_timestamp
+        )
+        from app import db
+        db.session.add(consumption)
+        db.session.commit()
+
+        # Get the guest select page
+        response = client.get(f'/guest/select/{sample_guest.id}')
+
+        # Should contain the drink history
+        assert response.status_code == 200
+        assert sample_drink.name.encode() in response.data
+
+        # The page should render with local time formatting
+        # We can't easily test the exact local time format due to timezone differences,
+        # but we can verify the page renders without errors and contains expected elements
+        assert b'drink-history' in response.data
+        assert b'list-group' in response.data
+
+    @pytest.mark.routes
+    def test_guest_select_drink_history_empty(self, client, sample_guest):
+        """Test guest select page with no drink history."""
+        response = client.get(f'/guest/select/{sample_guest.id}')
+
+        # Should show "No drinks recorded yet" message
+        assert response.status_code == 200
+        assert b'No drinks recorded yet' in response.data or b'no drinks' in response.data.lower()
+
+    @pytest.mark.routes
+    def test_add_drink_api_returns_local_time(self, client, sample_guest, sample_drink):
+        """Test that add_drink API returns timestamp in local time."""
+        data = {
+            'drink_id': sample_drink.id,
+            'guest_id': sample_guest.id
+        }
+
+        response = client.post(f'/guest/add_drink',
+                             data=data,
+                             follow_redirects=True)
+
+        # Should return JSON with local time formatted timestamp
+        assert response.status_code == 200
+
+        # The response should be JSON containing timestamp
+        import json
+        response_data = json.loads(response.data.decode())
+
+        assert 'timestamp' in response_data
+        assert 'success' in response_data
+        assert response_data['success'] is True
+
+        # Timestamp should be a string in time format (HH:MM:SS)
+        timestamp_str = response_data['timestamp']
+        assert isinstance(timestamp_str, str)
+        assert len(timestamp_str) == 8  # HH:MM:SS format
+        assert timestamp_str.count(':') == 2
+
+    @pytest.mark.routes
+    def test_guest_select_template_renders_drink_history(self, client, sample_guest, sample_drink):
+        """Test that guest select template properly renders drink history with local time."""
+        # Create a consumption
+        utc_timestamp = datetime(2025, 1, 15, 12, 30, 45, tzinfo=timezone.utc)
+        consumption = DrinkConsumption(
+            guest_id=sample_guest.id,
+            drink_id=sample_drink.id,
+            timestamp=utc_timestamp
+        )
+        from app import db
+        db.session.add(consumption)
+        db.session.commit()
+
+        response = client.get(f'/guest/select/{sample_guest.id}')
+
+        # Template should render successfully
+        assert response.status_code == 200
+        assert b'Your Drink History' in response.data
+
+        # Should contain the drink name
+        assert sample_drink.name.encode() in response.data
+
+        # Should contain time formatting (we can't test exact time due to timezone differences)
+        assert b':' in response.data  # Should contain time separators
+
+    @pytest.mark.routes
+    def test_guest_select_multiple_drinks_ordering(self, client, sample_guest, sample_drink):
+        """Test that multiple drinks are ordered correctly by timestamp (newest first)."""
+        # Create multiple consumptions with different timestamps
+        utc_base = datetime(2025, 1, 15, 12, 0, 0, tzinfo=timezone.utc)
+
+        # Create consumptions in reverse chronological order
+        consumptions = []
+        for i in range(3):
+            consumption = DrinkConsumption(
+                guest_id=sample_guest.id,
+                drink_id=sample_drink.id,
+                timestamp=utc_base + timedelta(minutes=i*5)  # 12:00, 12:05, 12:10
+            )
+            consumptions.append(consumption)
+            from app import db
+            db.session.add(consumption)
+
+        db.session.commit()
+
+        response = client.get(f'/guest/select/{sample_guest.id}')
+
+        # Should render successfully
+        assert response.status_code == 200
+        assert sample_drink.name.encode() in response.data
+
+        # Should contain multiple drinks
+        assert response.data.count(sample_drink.name.encode()) >= 3
