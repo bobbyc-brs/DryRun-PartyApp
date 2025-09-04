@@ -167,9 +167,11 @@ def bac_chart(guest_id):
     # Create Plotly figure
     fig = go.Figure()
     
+    from app import format_local_time
+
     # Add BAC line
     fig.add_trace(go.Scatter(
-        x=[t.strftime('%H:%M') for t in timestamps],
+        x=[format_local_time(t, '%H:%M') for t in timestamps],
         y=bac_values,
         mode='lines+markers',
         name='BAC %',
@@ -183,7 +185,7 @@ def bac_chart(guest_id):
     
     for consumption in guest.drinks:
         if consumption.timestamp >= start_time:
-            drink_times.append(consumption.timestamp.strftime('%H:%M'))
+            drink_times.append(format_local_time(consumption.timestamp, '%H:%M'))
             drink_names.append(f"{consumption.drink.name} ({consumption.drink.abv}%)")
             
             # Find the closest timestamp index
@@ -204,12 +206,12 @@ def bac_chart(guest_id):
     # Add horizontal lines for reference BAC levels
     fig.add_shape(
         type="line", line=dict(dash="dash", color="rgba(255, 153, 51, 0.8)", width=2),
-        x0=timestamps[0].strftime('%H:%M'), y0=BAC_LEGAL_LIMIT, 
-        x1=timestamps[-1].strftime('%H:%M'), y1=0.08
+        x0=format_local_time(timestamps[0], '%H:%M'), y0=BAC_LEGAL_LIMIT,
+        x1=format_local_time(timestamps[-1], '%H:%M'), y1=0.08
     )
     
     fig.add_annotation(
-        x=timestamps[0].strftime('%H:%M'), y=0.08,
+        x=format_local_time(timestamps[0], '%H:%M'), y=0.08,
         text=f"{BAC_LEGAL_LIMIT}% - Legal Limit",
         showarrow=False,
         xshift=50,
@@ -267,7 +269,7 @@ def group_bac_chart():
     # If no valid guests, create an empty chart with a message
     if not valid_guests:
         # Create timestamps for empty chart
-        timestamps_str = [t.strftime('%H:%M') for t in timestamps]
+        timestamps_str = [format_local_time(t, '%H:%M') for t in timestamps]
         
         # Add empty line for visual reference
         fig.add_trace(go.Scatter(
@@ -328,7 +330,7 @@ def group_bac_chart():
             
             # Add line for this guest
             fig.add_trace(go.Scatter(
-                x=[t.strftime('%H:%M') for t in timestamps],
+                x=[format_local_time(t, '%H:%M') for t in timestamps],
                 y=bac_values,
                 mode='lines',
                 name=guest.name,
@@ -338,12 +340,12 @@ def group_bac_chart():
     # Add horizontal line for reference BAC level
     fig.add_shape(
         type="line", line=dict(dash="dash", color="rgba(255, 153, 51, 0.8)", width=2),
-        x0=timestamps[0].strftime('%H:%M'), y0=BAC_LEGAL_LIMIT, 
-        x1=timestamps[-1].strftime('%H:%M'), y1=0.08
+        x0=format_local_time(timestamps[0], '%H:%M'), y0=BAC_LEGAL_LIMIT, 
+        x1=format_local_time(timestamps[-1], '%H:%M'), y1=0.08
     )
     
     fig.add_annotation(
-        x=timestamps[0].strftime('%H:%M'), y=0.08,
+        x=format_local_time(timestamps[0], '%H:%M'), y=0.08,
         text=f"{BAC_LEGAL_LIMIT}% - Legal Limit",
         showarrow=False,
         xshift=50,

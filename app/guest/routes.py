@@ -153,10 +153,12 @@ def add_drink():
         db.session.add(consumption)
         db.session.commit()
         
+        from app import format_local_time
+
         return jsonify({
-            'success': True, 
+            'success': True,
             'message': f'Added {drink.name} for {guest.name}',
-            'timestamp': consumption.timestamp.strftime('%H:%M:%S')
+            'timestamp': format_local_time(consumption.timestamp, '%H:%M:%S')
         })
     
     except Exception as e:

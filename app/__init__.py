@@ -23,10 +23,46 @@ For inquiries, contact: Info@BrighterSight.ca
 
 from flask import Flask, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
 import os
 
 # Global SQLAlchemy instance
 db = SQLAlchemy()
+
+
+def get_local_time(utc_dt):
+    """
+    Convert UTC datetime to local timezone for display.
+
+    Args:
+        utc_dt (datetime): UTC datetime object
+
+    Returns:
+        datetime: Local timezone datetime object
+    """
+    if utc_dt.tzinfo is None:
+        # Assume UTC if no timezone info
+        from datetime import timezone
+        utc_dt = utc_dt.replace(tzinfo=timezone.utc)
+
+    # Convert to local timezone
+    local_dt = utc_dt.astimezone()
+    return local_dt
+
+
+def format_local_time(utc_dt, format_str='%H:%M'):
+    """
+    Format a UTC datetime as a local time string.
+
+    Args:
+        utc_dt (datetime): UTC datetime object
+        format_str (str): Format string for strftime
+
+    Returns:
+        str: Formatted local time string
+    """
+    local_dt = get_local_time(utc_dt)
+    return local_dt.strftime(format_str)
 
 def create_app():
     """
